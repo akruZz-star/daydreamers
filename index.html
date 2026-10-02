@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<!-- DAYDREAMERS_PHASE2_PUBLIC_START -->
+    <meta name="description" content="DAYDREAMERS — Study • Progress • Grow Together. A student-friendly CA Intermediate study and productivity space.">
+    <meta name="keywords" content="CA Intermediate, CA aspirants, CA study tracker, CA students, study planner, DAYDREAMERS">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#111827">
+
+    <!-- Replace the placeholder canonical URL after choosing the final public domain. -->
+    <link rel="canonical" href="https://YOUR-DAYDREAMERS-DOMAIN.example/">
+
+    <!-- Open Graph / social sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DAYDREAMERS — CA Aspirants">
+    <meta property="og:description" content="DAYDREAMERS — Study • Progress • Grow Together. A student-friendly CA Intermediate study and productivity space.">
+    <meta property="og:url" content="https://YOUR-DAYDREAMERS-DOMAIN.example/">
+    <meta property="og:site_name" content="DAYDREAMERS">
+
+    <!-- Twitter/X sharing -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="DAYDREAMERS — CA Aspirants">
+    <meta name="twitter:description" content="DAYDREAMERS — Study • Progress • Grow Together. A student-friendly CA Intermediate study and productivity space.">
+<!-- DAYDREAMERS_PHASE2_PUBLIC_END -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAYDREAMERS — CA Aspirants</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="site.webmanifest">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>DAYDREAMERS</h2>
+            <p>Study • Progress • Grow Together</p>
+        </div>
+
+        <nav class="navigation">
+
+            <a href="#" class="nav-item active" data-page="dashboard">
+                🏠 Dashboard
+            </a>
+
+            <a href="#" class="nav-item" data-page="study-tracker">
+                📚 Study Tracker
+            </a>
+
+            <a href="#" class="nav-item" data-page="chapters">
+                📖 Chapters
+            </a>
+
+            <a href="#" class="nav-item" data-page="daily-log">
+                📝 Daily Log
+            </a>
+
+            <a href="#" class="nav-item" data-page="statistics">
+                📊 Statistics
+            </a>
+
+            <a href="#" class="nav-item" data-page="activities">
+                🎬 Activities
+            </a>
+
+            <a href="#" class="nav-item" data-page="calendar">
+                📅 Calendar
+            </a>
+
+            <a href="#" class="nav-item" data-page="compare">
+                👥 Compare Us
+            </a>
+
+            <a href="#" class="nav-item" data-page="motivation">
+                💡 Motivation
+            </a>
+
+            <a href="#" class="nav-item" data-page="goals">
+                🎯 Goals
+            </a>
+
+            <a href="#" class="nav-item" data-page="notes">
+                📝 Notes
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="#" class="nav-item" data-page="settings">
+                ⚙️ Settings
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
+        <header class="top-bar">
+
+            <div>
+
+                <p class="date" id="current-date">
+                    Loading date...
+                </p>
+
+                <h1 id="greeting">
+                    Loading...
+                </h1>
+
+            </div>
+
+            <div class="profile">
+                👤
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             DASHBOARD
+             ================================================= -->
+
+        <section id="dashboard" class="page-section">
+
+
+            <!-- =================================================
+                 HERO
+                 ================================================= -->
+
+            <section class="hero">
+
+                <div>
+
+                    <p class="small-label">
+                        OUR CA JOURNEY
+                    </p>
+
+                    <h2>
+                        ashjii & pothujii
+                    </h2>
+
+                    <p>
+                        Two friends. One CA dream. 📚❤️
+                    </p>
+
+                    <p id="dashboard-welcome-message">
+                        Every study session takes you one step closer.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DASHBOARD OVERVIEW
+                 ================================================= -->
+
+            <section class="tracker-overview dashboard-overview">
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        📚 Today's Study
+                    </span>
+
+                    <strong id="dashboard-study-total">
+                        0h 00m
+                    </strong>
+
+                    <small>
+                        Keep building your study streak.
+                    </small>
+
+                </div>
+
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        🎯 Daily Goal
+                    </span>
+
+                    <strong id="dashboard-goal-percent">
+                        0%
+                    </strong>
+
+                    <small>
+                        Goal: 6 hours
+                    </small>
+
+                    <div class="progress-bar">
+                        <div
+                            id="dashboard-goal-bar"
+                            class="progress-fill"
+                            style="width: 0%;">
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        🔥 Study Streak
+                    </span>
+
+                    <strong id="dashboard-streak">
+                        0 days
+                    </strong>
+
+                    <small>
+                        Consistency matters.
+                    </small>
+
+                </div>
+
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        📖 Chapter Progress
+                    </span>
+
+                    <strong id="dashboard-chapter-percent">
+                        0%
+                    </strong>
+
+                    <small id="dashboard-chapter-count">
+                        0 chapters completed
+                    </small>
+
+                    <div class="progress-bar">
+                        <div
+                            id="dashboard-chapter-bar"
+                            class="progress-fill"
+                            style="width: 0%;">
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 USER CARDS
+                 ================================================= -->
+
+            <section class="user-cards">
+
+
+                <!-- ASHJII -->
+
+                <div class="user-card ashjii-card">
+
+                    <div class="user-card-header">
+
+                        <div class="avatar">
+                            👦🏻
+                        </div>
+
+                        <div>
+
+                            <p class="small-label">
+                                YOUR JOURNEY
+                            </p>
+
+                            <h2>
+                                ashjii
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stats-grid">
+
+                        <div class="stat">
+
+                            <span>
+                                Today's Study
+                            </span>
+
+                            <strong id="dashboard-ash-study">
+                                0h 00m
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <span>
+                                Daily Goal
+                            </span>
+
+                            <strong>
+                                6h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <span>
+                                Chapters
+                            </span>
+
+                            <strong id="dashboard-ash-chapters">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <span>
+                                Streak
+                            </span>
+
+                            <strong id="dashboard-ash-streak">
+                                0 days 🔥
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- POTHUJII -->
+
+                <div class="user-card pothujii-card">
+
+                    <div class="user-card-header">
+
+                        <div class="avatar">
+                            👧🏻
+                        </div>
+
+                        <div>
+
+                            <p class="small-label">
+                                FRIEND'S JOURNEY
+                            </p>
+
+                            <h2>
+                                pothujii
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stats-grid">
+
+                        <div class="stat">
+
+                            <span>
+                                Today's Study
+                            </span>
+
+                            <strong>
+                                0h 00m
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <span>
+                                Daily Goal
+                            </span>
+
+                            <strong>
+                                6h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <span>
+                                Chapters
+                            </span>
+
+                            <strong>
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <span>
+                                Streak
+                            </span>
+
+                            <strong>
+                                0 days 🔥
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 MAIN DASHBOARD GRID
+                 ================================================= -->
+
+            <section class="dashboard-grid">
+
+
+                <!-- =================================================
+                     TODAY'S STUDY
+                     ================================================= -->
+
+                <div class="dashboard-card study-breakdown">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                TODAY
+                            </p>
+
+                            <h2>
+                                Study Breakdown
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="subject-list">
+
+
+                        <div class="subject-row">
+
+                            <span>
+                                📘 Accounts
+                            </span>
+
+                            <strong id="breakdown-Accounts">
+                                0h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="subject-row">
+
+                            <span>
+                                ⚖️ Law
+                            </span>
+
+                            <strong id="breakdown-Law">
+                                0h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="subject-row">
+
+                            <span>
+                                💰 Taxation
+                            </span>
+
+                            <strong id="breakdown-Taxation">
+                                0h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="subject-row">
+
+                            <span>
+                                🧮 Costing
+                            </span>
+
+                            <strong id="breakdown-Costing">
+                                0h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="subject-row">
+
+                            <span>
+                                🔍 Auditing
+                            </span>
+
+                            <strong id="breakdown-Audit">
+                                0h
+                            </strong>
+
+                        </div>
+
+
+                        <div class="subject-row">
+
+                            <span>
+                                📈 FM & SM
+                            </span>
+
+                            <strong id="breakdown-FM & SM">
+                                0h
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     CHAPTER PROGRESS
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                CA INTERMEDIATE
+                            </p>
+
+                            <h2>
+                                Chapter Progress
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-item">
+
+                        <div class="progress-title">
+
+                            <span>
+                                Advanced Accounting
+                            </span>
+
+                            <strong>
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress-fill"
+                                style="width: 0%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-item">
+
+                        <div class="progress-title">
+
+                            <span>
+                                Corporate & Other Laws
+                            </span>
+
+                            <strong>
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress-fill"
+                                style="width: 0%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-item">
+
+                        <div class="progress-title">
+
+                            <span>
+                                Taxation
+                            </span>
+
+                            <strong>
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress-fill"
+                                style="width: 0%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-item">
+
+                        <div class="progress-title">
+
+                            <span>
+                                Cost & Management Accounting
+                            </span>
+
+                            <strong>
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress-fill"
+                                style="width: 0%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-item">
+
+                        <div class="progress-title">
+
+                            <span>
+                                Auditing & Ethics
+                            </span>
+
+                            <strong>
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress-fill"
+                                style="width: 0%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-item">
+
+                        <div class="progress-title">
+
+                            <span>
+                                Financial & Strategic Management
+                            </span>
+
+                            <strong>
+                                0%
+                            </strong>
+
+                        </div>
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="progress-fill"
+                                style="width: 0%;">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     TODAY'S SESSIONS
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                TODAY
+                            </p>
+
+                            <h2>
+                                Study Sessions
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="dashboard-today-sessions"
+                        class="study-session-list">
+
+                        <div class="tracker-empty-state">
+
+                            <div>
+                                📚
+                            </div>
+
+                            <p>
+                                No study sessions yet.
+                            </p>
+
+                            <span>
+                                Start your first session today.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     WEEKLY SUMMARY
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                THIS WEEK
+                            </p>
+
+                            <h2>
+                                Study Summary
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="big-number"
+                        id="dashboard-weekly-total">
+
+                        0h
+
+                    </div>
+
+                    <p class="muted">
+                        Total study time this week
+                    </p>
+
+
+                    <div class="weekly-placeholder">
+
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                        <div>Sun</div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     RECENT ACTIVITIES
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                RECENT
+                            </p>
+
+                            <h2>
+                                Activities
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="dashboard-recent-activities" class="dashboard-activity-preview">
+
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <p>No activities yet.</p>
+                            <span>Your recent activities will appear here.</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     CALENDAR
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                CALENDAR
+                            </p>
+
+                            <h2>
+                                Study Calendar
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="dashboard-mini-calendar" class="dashboard-mini-calendar">
+
+                        <div class="calendar-placeholder">
+                            <p>Loading your study calendar…</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     MOTIVATION
+                     ================================================= -->
+
+                <div class="dashboard-card motivation-card">
+
+                    <p class="small-label">
+                        💡 MOTIVATION
+                    </p>
+
+                    <h2>
+                        Small steps.<br>
+                        Big results.
+                    </h2>
+
+                    <p>
+                        One chapter at a time.
+                        Keep going. 🌱
+                    </p>
+
+                </div>
+
+
+                <!-- =================================================
+                     GOALS
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                OUR GOALS
+                            </p>
+
+                            <h2>
+                                CA Journey 🎯
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="goal">
+                        <span>
+                            ☐ Complete CA Intermediate
+                        </span>
+                    </div>
+
+                    <div class="goal">
+                        <span>
+                            ☐ Complete the syllabus
+                        </span>
+                    </div>
+
+                    <div class="goal">
+                        <span>
+                            ☐ Complete revision
+                        </span>
+                    </div>
+
+                    <div class="goal">
+                        <span>
+                            ☐ Write the exams
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     QUICK ACTIONS
+                     ================================================= -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                QUICK ACTIONS
+                            </p>
+
+                            <h2>
+                                What do you want to do?
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="quick-actions">
+
+                        <button id="add-study-button">
+                            📚 + Study
+                        </button>
+
+                        <button id="quick-add-chapter">
+                            📖 + Chapter
+                        </button>
+
+                        <button>
+                            🎬 + Activity
+                        </button>
+
+                        <button>
+                            📝 + Note
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+        </section>
+
+
+        <!-- =================================================
+             STUDY TRACKER PAGE
+             ================================================= -->
+
+        <section
+            id="study-tracker"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        YOUR STUDY
+                    </p>
+
+                    <h1>
+                        Study Tracker
+                    </h1>
+
+                    <p class="muted">
+                        Track your daily study sessions.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="study-tracker-add-button"
+                    class="primary-action-button"
+                >
+                    + Add Study
+                </button>
+
+            </div>
+
+
+            <div class="tracker-overview">
+
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        Today's Study
+                    </span>
+
+                    <strong id="tracker-today-total">
+                        0h 00m
+                    </strong>
+
+                    <small>
+                        Daily goal: 6h
+                    </small>
+
+                </div>
+
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        Sessions Today
+                    </span>
+
+                    <strong id="tracker-session-count">
+                        0
+                    </strong>
+
+                    <small>
+                        Study sessions
+                    </small>
+
+                </div>
+
+
+                <div class="tracker-summary-card">
+
+                    <span>
+                        Subjects Today
+                    </span>
+
+                    <strong id="tracker-subject-count">
+                        0
+                    </strong>
+
+                    <small>
+                        Different subjects
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="tracker-card">
+
+                <div class="tracker-card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            TODAY
+                        </p>
+
+                        <h2>
+                            Today's Sessions
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="today-study-sessions"
+                    class="study-session-list"
+                >
+
+                    <div class="tracker-empty-state">
+
+                        <div>
+                            📚
+                        </div>
+
+                        <p>
+                            No study sessions yet today.
+                        </p>
+
+                        <span>
+                            Add your first study session.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="tracker-card">
+
+                <div class="tracker-card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            HISTORY
+                        </p>
+
+                        <h2>
+                            Recent Study
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="recent-study-days"
+                    class="recent-study-list"
+                >
+
+                    <div class="tracker-empty-state">
+
+                        <div>
+                            📅
+                        </div>
+
+                        <p>
+                            No study history yet.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CHAPTERS PAGE
+             ================================================= -->
+
+        <section
+            id="chapters"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        CA INTERMEDIATE
+                    </p>
+
+                    <h1>
+                        Chapters
+                    </h1>
+
+                    <p class="muted">
+                        Track your progress through the complete syllabus.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="chapter-controls">
+
+                <input
+                    type="text"
+                    id="chapter-search"
+                    placeholder="Search chapters..."
+                    autocomplete="off"
+                >
+
+
+                <select id="chapter-subject-filter">
+
+                    <option value="all">
+                        All Subjects
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                id="chapters-content"
+                class="chapters-content"
+            >
+
+                <div class="tracker-empty-state">
+
+                    <div>
+                        📖
+                    </div>
+
+                    <p>
+                        Loading syllabus...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PLACEHOLDER PAGES
+             ================================================= -->
+
+        <section
+            id="daily-log"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        DAILY LOG
+                    </p>
+
+                    <h1>
+                        Daily Log
+                    </h1>
+
+                    <p class="muted">
+                        Your daily activities will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="statistics"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        ANALYTICS
+                    </p>
+
+                    <h1>
+                        Statistics
+                    </h1>
+
+                    <p class="muted">
+                        Your study statistics will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="activities"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        ACTIVITIES
+                    </p>
+
+                    <h1>
+                        Activities
+                    </h1>
+
+                    <p class="muted">
+                        Track your non-study activities here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="calendar"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        CALENDAR
+                    </p>
+
+                    <h1>
+                        Calendar
+                    </h1>
+
+                    <p class="muted">
+                        Your study calendar will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="compare"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        TWO FRIENDS
+                    </p>
+
+                    <h1>
+                        Compare Us
+                    </h1>
+
+                    <p class="muted">
+                        Compare ashjii and pothujii's progress.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="motivation"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        KEEP GOING
+                    </p>
+
+                    <h1>
+                        Motivation
+                    </h1>
+
+                    <p class="muted">
+                        Motivation and quotes will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="goals"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        OUR TARGETS
+                    </p>
+
+                    <h1>
+                        Goals
+                    </h1>
+
+                    <p class="muted">
+                        Your goals will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="notes"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        NOTES
+                    </p>
+
+                    <h1>
+                        Notes
+                    </h1>
+
+                    <p class="muted">
+                        Your personal notes will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            id="settings"
+            class="page-section"
+            style="display: none;"
+        >
+
+            <div class="page-header">
+
+                <div>
+
+                    <p class="small-label">
+                        SETTINGS
+                    </p>
+
+                    <h1>
+                        Settings
+                    </h1>
+
+                    <p class="muted">
+                        Website settings will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         ADD STUDY MODAL
+         ===================================================== -->
+
+    <div
+        id="study-modal"
+        class="modal-overlay"
+    >
+
+        <div class="study-modal">
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="small-label">
+                        QUICK ADD
+                    </p>
+
+                    <h2>
+                        Add Study Session
+                    </h2>
+
+                </div>
+
+
+                <button
+                    id="close-study-modal"
+                    class="close-button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <label for="study-subject">
+                Subject
+            </label>
+
+
+            <select id="study-subject">
+
+                <option value="Accounts">
+                    Advanced Accounting
+                </option>
+
+                <option value="Law">
+                    Corporate & Other Laws
+                </option>
+
+                <option value="Taxation">
+                    Taxation
+                </option>
+
+                <option value="Costing">
+                    Cost & Management Accounting
+                </option>
+
+                <option value="Audit">
+                    Auditing & Ethics
+                </option>
+
+                <option value="FM & SM">
+                    Financial & Strategic Management
+                </option>
+
+            </select>
+
+
+            <label for="study-hours">
+                Hours studied
+            </label>
+
+
+            <input
+                type="number"
+                id="study-hours"
+                min="0"
+                step="0.25"
+                placeholder="Example: 2"
+            >
+
+
+            <button
+                id="save-study-button"
+                class="save-button"
+            >
+                Save Study
+            </button>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="js/syllabus.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

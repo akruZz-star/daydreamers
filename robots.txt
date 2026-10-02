@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Replace this placeholder with the final public sitemap URL after deployment.
+Sitemap: https://YOUR-DAYDREAMERS-DOMAIN.example/sitemap.xml

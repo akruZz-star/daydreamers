@@ -1,0 +1,10 @@
+{
+  "name": "DAYDREAMERS \u2014 CA Aspirants",
+  "short_name": "DAYDREAMERS",
+  "description": "DAYDREAMERS \u2014 Study \u2022 Progress \u2022 Grow Together. A student-friendly CA Intermediate study and productivity space.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "icons": []
+}
