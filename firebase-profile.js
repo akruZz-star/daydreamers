@@ -48,7 +48,9 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 
-// Make Firebase services available to DAYDREAMERS.
+// =========================================================
+// EXPOSE FIREBASE SERVICES
+// =========================================================
 
 window.daydreamersFirebaseApp = firebaseApp;
 window.daydreamersAuth = auth;
@@ -67,7 +69,7 @@ window.daydreamersProfile = {
 
 
 // =========================================================
-// LOAD PROFILE
+// PROFILE READY PROMISE
 // =========================================================
 
 window.daydreamersProfileReady = new Promise((resolve) => {
@@ -75,7 +77,7 @@ window.daydreamersProfileReady = new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
 
         // -------------------------------------------------
-        // No logged-in user
+        // NO USER LOGGED IN
         // -------------------------------------------------
 
         if (!user) {
@@ -86,89 +88,108 @@ window.daydreamersProfileReady = new Promise((resolve) => {
                 role: "guest"
             };
 
-            resolve(window.daydreamersProfile);
+            console.log(
+                "DAYDREAMERS profile loaded:",
+                window.daydreamersProfile
+            );
 
+            resolve(window.daydreamersProfile);
             return;
         }
 
 
         // -------------------------------------------------
-        // Logged-in user
+        // USER LOGGED IN
         // -------------------------------------------------
 
         try {
 
-            const userRef =
-                doc(db, "users", user.uid);
+            const userRef = doc(
+                db,
+                "users",
+                user.uid
+            );
 
-            const userSnapshot =
-                await getDoc(userRef);
+            const userSnapshot = await getDoc(userRef);
 
+
+            // -------------------------------------------------
+            // FIRESTORE PROFILE EXISTS
+            // -------------------------------------------------
 
             if (userSnapshot.exists()) {
 
-                const profile =
-                    userSnapshot.data();
+                const profile = userSnapshot.data();
 
                 window.daydreamersProfile = {
-
                     ...profile,
-
                     uid: user.uid,
-
                     email: user.email || ""
-
                 };
 
-            } else {
+            }
+
+            // -------------------------------------------------
+            // FIRESTORE PROFILE DOES NOT EXIST
+            // -------------------------------------------------
+
+            else {
+
+                const fallbackName =
+                    user.email?.split("@")[0] || "User";
 
                 window.daydreamersProfile = {
 
-                    displayName:
-                        user.email?.split("@")[0] || "User",
+                    displayName: fallbackName,
 
-                    username:
-                        user.email?.split("@")[0] || "user",
+                    username: fallbackName,
 
                     role: "member",
 
                     uid: user.uid,
 
                     email: user.email || ""
-
                 };
 
             }
 
-        } catch (error) {
+        }
+
+        // -------------------------------------------------
+        // PROFILE LOADING ERROR
+        // -------------------------------------------------
+
+        catch (error) {
 
             console.error(
                 "DAYDREAMERS profile loading error:",
                 error
             );
 
+            const fallbackName =
+                user.email?.split("@")[0] || "User";
 
             window.daydreamersProfile = {
 
-                displayName:
-                    user.email?.split("@")[0] || "User",
+                displayName: fallbackName,
 
-                username:
-                    user.email?.split("@")[0] || "user",
+                username: fallbackName,
 
                 role: "member",
 
                 uid: user.uid,
 
                 email: user.email || ""
-
             };
-
         }
 
 
+        // -------------------------------------------------
+        // LOG FINAL PROFILE
+        // -------------------------------------------------
+
         console.log(
-            "DAYDREAMERS profile:",
+            "DAYDREAMERS profile loaded:",
             window.daydreamersProfile
         );
 
@@ -214,3 +235,12 @@ window.daydreamersIsGuest = function () {
     );
 
 };
+
+
+// =========================================================
+// DEBUG
+// =========================================================
+
+console.log(
+    "DAYDREAMERS Firebase profile bridge initialized."
+);
