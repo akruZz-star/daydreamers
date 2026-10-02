@@ -5095,22 +5095,23 @@ if (greetingElement) {
         });
     }
 
-    function initializeDaydreamers() {
-        ensureRequiredPageSections();
-        applyReadablePreference(getReadablePreference());
-        setupThemeSystem();
-        setupFinalEditDeleteHandlers();
-        updateDateAndGreeting();
-        setupNavigation();
-        setupStudyModal();
-        setupChapterFilters();
-        setupQuickChapterButton();
-        renderDashboard();
-        renderProfilePhotos();
-        renderStudyTracker();
-        renderChapters();
-        showPage("dashboard");
+async function initializeDaydreamers() {
+
+    // Wait for Firebase profile to finish loading.
+    if (window.daydreamersProfileReady) {
+        await window.daydreamersProfileReady;
     }
+
+    updateDateAndGreeting();
+    setupNavigation();
+    setupStudyModal();
+    setupChapterFilters();
+    setupQuickChapterButton();
+    renderDashboard();
+    renderStudyTracker();
+    renderChapters();
+    showPage("dashboard");
+}   
 
 
     /* ---------------------------------------------------------
