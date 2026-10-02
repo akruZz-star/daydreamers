@@ -403,10 +403,11 @@ forgotPasswordBtn.addEventListener("click", async function () {
 
         console.error("Password reset error:", error);
 
-        alert(
-            "Could not send the password reset email.\n\n" +
-            "Please check the email address and try again."
-        );
+   alert(
+    "Password reset error:\n\n" +
+    error.code + "\n\n" +
+    error.message
+);    
 
     } finally {
 
