@@ -215,3 +215,42 @@ window.daydreamersIsGuest = function () {
         window.daydreamersProfile.role === "guest"
     );
 };
+// =========================================================
+// DAYDREAMERS — PROFILE READY ALIAS
+// =========================================================
+
+window.daydreamersProfileReady =
+    window.daydreamersProfilePromise;
+
+
+// =========================================================
+// DAYDREAMERS — ROLE HELPERS
+// =========================================================
+
+window.daydreamersIsOwner = function () {
+
+    return (
+        window.daydreamersProfile?.role === "owner"
+    );
+};
+
+
+window.daydreamersIsMember = function () {
+
+    const role =
+        window.daydreamersProfile?.role;
+
+    return (
+        role === "owner" ||
+        role === "member"
+    );
+};
+
+
+window.daydreamersIsGuest = function () {
+
+    return (
+        !window.daydreamersProfile ||
+        window.daydreamersProfile.role === "guest"
+    );
+};
