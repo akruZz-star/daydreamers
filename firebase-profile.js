@@ -20,9 +20,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
 
-// ---------------------------------------------------------
+// =========================================================
 // FIREBASE CONFIG
-// ---------------------------------------------------------
+// =========================================================
 
 const firebaseConfig = {
     apiKey: "AIzaSyCz_qv-BDYFq6demMx2EZU3t1dgaRKvrr8",
@@ -35,9 +35,9 @@ const firebaseConfig = {
 };
 
 
-// ---------------------------------------------------------
+// =========================================================
 // INITIALIZE FIREBASE
-// ---------------------------------------------------------
+// =========================================================
 
 const firebaseApp =
     getApps().length > 0
@@ -49,31 +49,35 @@ const db = getFirestore(firebaseApp);
 
 
 // Make Firebase services available to DAYDREAMERS.
+
 window.daydreamersFirebaseApp = firebaseApp;
 window.daydreamersAuth = auth;
 window.daydreamersDb = db;
 
 
-// ---------------------------------------------------------
+// =========================================================
 // DEFAULT PROFILE
-// ---------------------------------------------------------
+// =========================================================
 
 window.daydreamersProfile = {
-    displayName: "ashjii",
-    username: "ashjii",
+    displayName: "Guest",
+    username: "guest",
     role: "guest"
 };
 
 
-// ---------------------------------------------------------
+// =========================================================
 // LOAD PROFILE
-// ---------------------------------------------------------
+// =========================================================
 
 window.daydreamersProfileReady = new Promise((resolve) => {
 
     onAuthStateChanged(auth, async (user) => {
 
-        // No Firebase user is logged in.
+        // -------------------------------------------------
+        // No logged-in user
+        // -------------------------------------------------
+
         if (!user) {
 
             window.daydreamersProfile = {
@@ -87,6 +91,10 @@ window.daydreamersProfileReady = new Promise((resolve) => {
             return;
         }
 
+
+        // -------------------------------------------------
+        // Logged-in user
+        // -------------------------------------------------
 
         try {
 
@@ -103,21 +111,33 @@ window.daydreamersProfileReady = new Promise((resolve) => {
                     userSnapshot.data();
 
                 window.daydreamersProfile = {
+
                     ...profile,
-                    uid: user.uid
+
+                    uid: user.uid,
+
+                    email: user.email || ""
+
                 };
 
             } else {
 
-                // Authenticated user exists,
-                // but no Firestore profile exists yet.
-
                 window.daydreamersProfile = {
-                    displayName: user.email?.split("@")[0] || "User",
-                    username: user.email?.split("@")[0] || "user",
+
+                    displayName:
+                        user.email?.split("@")[0] || "User",
+
+                    username:
+                        user.email?.split("@")[0] || "user",
+
                     role: "member",
-                    uid: user.uid
+
+                    uid: user.uid,
+
+                    email: user.email || ""
+
                 };
+
             }
 
         } catch (error) {
@@ -127,12 +147,23 @@ window.daydreamersProfileReady = new Promise((resolve) => {
                 error
             );
 
+
             window.daydreamersProfile = {
-                displayName: user.email?.split("@")[0] || "User",
-                username: user.email?.split("@")[0] || "user",
+
+                displayName:
+                    user.email?.split("@")[0] || "User",
+
+                username:
+                    user.email?.split("@")[0] || "user",
+
                 role: "member",
-                uid: user.uid
+
+                uid: user.uid,
+
+                email: user.email || ""
+
             };
+
         }
 
 
@@ -141,12 +172,16 @@ window.daydreamersProfileReady = new Promise((resolve) => {
             window.daydreamersProfile
         );
 
+
         resolve(window.daydreamersProfile);
+
     });
 
 });
+
+
 // =========================================================
-// DAYDREAMERS — ROLE HELPERS
+// ROLE HELPERS
 // =========================================================
 
 window.daydreamersIsOwner = function () {
@@ -154,6 +189,7 @@ window.daydreamersIsOwner = function () {
     return (
         window.daydreamersProfile?.role === "owner"
     );
+
 };
 
 
@@ -166,6 +202,7 @@ window.daydreamersIsMember = function () {
         role === "owner" ||
         role === "member"
     );
+
 };
 
 
@@ -175,82 +212,5 @@ window.daydreamersIsGuest = function () {
         !window.daydreamersProfile ||
         window.daydreamersProfile.role === "guest"
     );
-};
-// =========================================================
-// DAYDREAMERS — PROFILE READY ALIAS
-// =========================================================
 
-window.daydreamersProfileReady =
-    window.daydreamersProfilePromise;
-
-
-// =========================================================
-// DAYDREAMERS — ROLE HELPERS
-// =========================================================
-
-window.daydreamersIsOwner = function () {
-
-    return (
-        window.daydreamersProfile?.role === "owner"
-    );
-};
-
-
-window.daydreamersIsMember = function () {
-
-    const role =
-        window.daydreamersProfile?.role;
-
-    return (
-        role === "owner" ||
-        role === "member"
-    );
-};
-
-
-window.daydreamersIsGuest = function () {
-
-    return (
-        !window.daydreamersProfile ||
-        window.daydreamersProfile.role === "guest"
-    );
-};
-// =========================================================
-// DAYDREAMERS — PROFILE READY ALIAS
-// =========================================================
-
-window.daydreamersProfileReady =
-    window.daydreamersProfilePromise;
-
-
-// =========================================================
-// DAYDREAMERS — ROLE HELPERS
-// =========================================================
-
-window.daydreamersIsOwner = function () {
-
-    return (
-        window.daydreamersProfile?.role === "owner"
-    );
-};
-
-
-window.daydreamersIsMember = function () {
-
-    const role =
-        window.daydreamersProfile?.role;
-
-    return (
-        role === "owner" ||
-        role === "member"
-    );
-};
-
-
-window.daydreamersIsGuest = function () {
-
-    return (
-        !window.daydreamersProfile ||
-        window.daydreamersProfile.role === "guest"
-    );
 };
