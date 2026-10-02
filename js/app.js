@@ -499,11 +499,21 @@
                     }
                 );
         }
+if (greetingElement) {
 
-        if (greetingElement) {
-            greetingElement.textContent =
-                `${greeting}, ashjii 👋`;
-        }
+    const profile =
+        window.daydreamersProfile;
+
+    const displayName =
+        profile?.displayName ||
+        profile?.username ||
+        "ashjii";
+
+    greetingElement.textContent =
+        `${greeting}, ${displayName} 👋`;
+}
+
+       
     }
 
     /* ---------------------------------------------------------
