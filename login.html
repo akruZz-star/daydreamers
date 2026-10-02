@@ -236,6 +236,30 @@
                 font-size: 26px;
             }
         }
+        .forgot-password {
+    text-align: right;
+    margin-top: 8px;
+}
+
+.forgot-password button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #9b8cff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.forgot-password button:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+}
+
+.forgot-password button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
     </style>
 </head>
 
@@ -278,14 +302,20 @@
                 <div class="form-group">
                     <label for="password">Password</label>
 
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
+               <input
+    type="password"
+    id="password"
+    name="password"
+    placeholder="Enter your password"
+    autocomplete="current-password"
+    required
+>
+<div class="forgot-password">
+    <button type="button" id="forgotPasswordBtn">
+        Forgot password?
+    </button>
+</div>  
+        
                 </div>
 
                 <button
@@ -323,11 +353,11 @@
         initializeApp
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 
-    import {
-        getAuth,
-        signInWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCz_qv-BDYFq6demMx2EZU3t1dgaRKvrr8",
@@ -345,6 +375,47 @@ measurementId: "G-LCGSS1Q36F"
 
 
     const loginForm = document.getElementById("loginForm");
+    const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+
+forgotPasswordBtn.addEventListener("click", async function () {
+
+    const email = document.getElementById("email").value.trim();
+
+    if (!email) {
+        alert("Please enter your email address first.");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    forgotPasswordBtn.disabled = true;
+    forgotPasswordBtn.textContent = "Sending...";
+
+    try {
+
+        await sendPasswordResetEmail(auth, email);
+
+        alert(
+            "Password reset email sent!\n\n" +
+            "Please check your inbox and follow the instructions."
+        );
+
+    } catch (error) {
+
+        console.error("Password reset error:", error);
+
+        alert(
+            "Could not send the password reset email.\n\n" +
+            "Please check the email address and try again."
+        );
+
+    } finally {
+
+        forgotPasswordBtn.disabled = false;
+        forgotPasswordBtn.textContent = "Forgot password?";
+
+    }
+
+});
 
 
     loginForm.addEventListener("submit", async function (event) {
