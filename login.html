@@ -318,6 +318,73 @@
         </a>
 
     </main>
+<script type="module">
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 
+    import {
+        getAuth,
+        signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCz_qv-BDYFq6demMx2EZU3t1dgaRKvrr8",
+        authDomain: "daydreamers-db417.firebaseapp.com",
+        projectId: "daydreamers-db417",
+        storageBucket: "daydreamers-db417.firebasestorage.app",
+        messagingSenderId: "570906387646",
+        appId: "1:570906387646:web:fe26e2bec9a42ac88b2aef",
+        measurementId: "G-EE5F4DW72F"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+
+    const loginForm = document.getElementById("loginForm");
+
+
+    loginForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+
+        const button = loginForm.querySelector(".login-button");
+
+        button.disabled = true;
+        button.textContent = "Signing in...";
+
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            window.location.href = "index.html";
+
+        } catch (error) {
+
+            console.error("Login error:", error);
+
+            alert(
+                "Login failed.\n\n" +
+                "Please check your email and password."
+            );
+
+            button.disabled = false;
+            button.textContent = "Login";
+        }
+
+    });
+</script>
 </body>
 </html>
