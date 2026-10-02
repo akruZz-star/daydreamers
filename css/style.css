@@ -3980,3 +3980,138 @@ html[data-theme="dark"] .daily-log-timeline-item:hover {
 .dashboard-calendar-day em { position:absolute; top:5px; right:5px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:rgba(16,185,129,.14); color:#047857; font-size:9px; font-style:normal; display:grid; place-items:center; }
 .dashboard-calendar-footer { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px; font-size:12px; color:var(--text-muted, #64748b); }
 @media (max-width: 700px) { .dashboard-calendar-week { gap:4px; } .dashboard-calendar-day { min-height:92px; padding:7px 2px; } .dashboard-calendar-day > strong { font-size:15px; } .dashboard-calendar-day > small { font-size:9px; } .dashboard-activity-row { grid-template-columns:36px minmax(0,1fr) auto; } }
+/* =========================================================
+   DAYDREAMERS — MOBILE LEFT SIDEBAR
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 76px;
+        min-height: 100vh;
+        padding: 16px 8px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 1000;
+    }
+
+    .brand {
+        padding: 0 0 18px;
+        min-width: 0;
+        text-align: center;
+    }
+
+    .brand h2 {
+        font-size: 11px;
+        line-height: 1.15;
+        letter-spacing: 0.8px;
+        word-break: break-word;
+    }
+
+    .brand p {
+        display: none;
+    }
+
+    .navigation {
+        flex-direction: column;
+        gap: 5px;
+        overflow: visible;
+        flex: 0 0 auto;
+    }
+
+    .nav-item {
+        min-height: 44px;
+        width: 100%;
+        padding: 0;
+        justify-content: center;
+        font-size: 0;
+        flex-shrink: 0;
+    }
+
+    .nav-item::before {
+        display: block;
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .nav-item[data-page="dashboard"]::before {
+        content: "🏠";
+    }
+
+    .nav-item[data-page="study-tracker"]::before {
+        content: "📚";
+    }
+
+    .nav-item[data-page="chapters"]::before {
+        content: "📖";
+    }
+
+    .nav-item[data-page="daily-log"]::before {
+        content: "📝";
+    }
+
+    .nav-item[data-page="statistics"]::before {
+        content: "📊";
+    }
+
+    .nav-item[data-page="activities"]::before {
+        content: "🎬";
+    }
+
+    .nav-item[data-page="calendar"]::before {
+        content: "📅";
+    }
+
+    .nav-item[data-page="compare"]::before {
+        content: "👥";
+    }
+
+    .nav-item[data-page="motivation"]::before {
+        content: "💡";
+    }
+
+    .nav-item[data-page="goals"]::before {
+        content: "🎯";
+    }
+
+    .nav-item[data-page="notes"]::before {
+        content: "📝";
+    }
+
+    .sidebar-bottom {
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-bottom .nav-item {
+        width: 100%;
+        font-size: 0;
+        justify-content: center;
+    }
+
+    .sidebar-bottom .nav-item::before {
+        content: "⚙️";
+        display: block;
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .main-content {
+        margin-left: 76px;
+        padding: 22px 14px 50px;
+    }
+
+    .user-cards,
+    .dashboard-grid,
+    .tracker-overview {
+        grid-template-columns: 1fr;
+    }
+}
