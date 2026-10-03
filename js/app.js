@@ -23,11 +23,11 @@
        STATE
        --------------------------------------------------------- */
 
-    let studySessions = loadArray(STORAGE_KEYS.studySessions);
-    let chapterProgress = loadObject(STORAGE_KEYS.chapterProgress);
-    let dailyLogs = loadObject(STORAGE_KEYS.dailyLogs);
+    let studySessions = [];
+    let chapterProgress = {};
+    let dailyLogs = {};
     let activities = loadArray(STORAGE_KEYS.activities);
-
+   
     let selectedDailyLogDate = getTodayKey();
     let selectedCalendarDate = getTodayKey();
     let calendarViewDate = new Date();
@@ -5102,6 +5102,39 @@ async function initializeDaydreamers() {
         await window.daydreamersProfileReady;
     }
 
+    // Load this logged-in user's study data from Firebase.
+    if (window.daydreamersStudyCloud) {
+        try {
+            const cloudData =
+                await window.daydreamersStudyCloud.load();
+
+            studySessions =
+                cloudData.studySessions || [];
+
+            chapterProgress =
+                cloudData.chapterProgress || {};
+
+            dailyLogs =
+                cloudData.dailyLogs || {};
+
+            console.log(
+                "DAYDREAMERS cloud study data loaded:",
+                cloudData
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DAYDREAMERS cloud study data load failed:",
+                error
+            );
+
+            alert(
+                "Could not load your cloud study data. Please check your internet connection and refresh."
+            );
+        }
+    }
+
     updateDateAndGreeting();
     setupNavigation();
     setupStudyModal();
@@ -5111,7 +5144,7 @@ async function initializeDaydreamers() {
     renderStudyTracker();
     renderChapters();
     showPage("dashboard");
-}   
+}
 
 
     /* ---------------------------------------------------------
