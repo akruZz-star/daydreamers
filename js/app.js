@@ -5050,27 +5050,111 @@ if (greetingElement) {
         setTimeout(() => { if (hours) hours.focus(); }, 50);
     }
 
-    function saveStudySession() {
-        const subjectElement = $("study-subject");
-        const hoursElement = $("study-hours");
-        if (!subjectElement || !hoursElement) return;
-        const subject = subjectElement.value;
-        const hours = Number(hoursElement.value);
-        if (!Number.isFinite(hours) || hours <= 0 || hours > 24) { alert("Please enter a study time between 0 and 24 hours."); return; }
-        if (editingStudySessionId) {
-            const item = studySessions.find(s => s.id === editingStudySessionId);
-            if (item) { item.subject = subject; item.hours = hours; }
-            editingStudySessionId = null;
-        } else {
-            studySessions.push({id:`session-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,date:getTodayKey(),subject,hours,createdAt:Date.now()});
-        }
-        saveState();
-        closeStudyModal();
-        const save = $("save-study-button");
-        if (save) save.textContent = "Save Study Session";
-        updateAllDisplays();
-        showPage(getVisiblePageId() || "dashboard");
+   async function saveStudySession() {
+    const subjectElement =
+        $("study-subject");
+
+    const hoursElement =
+        $("study-hours");
+
+    if (
+        !subjectElement ||
+        !hoursElement
+    ) {
+        return;
     }
+
+    const subject =
+        subjectElement.value;
+
+    const hours =
+        Number(
+            hoursElement.value
+        );
+
+    if (
+        !Number.isFinite(hours) ||
+        hours <= 0
+    ) {
+        alert(
+            "Please enter a study time greater than 0."
+        );
+
+        hoursElement.focus();
+
+        return;
+    }
+
+    if (hours > 24) {
+        alert(
+            "Please enter a realistic study time."
+        );
+
+        hoursElement.focus();
+
+        return;
+    }
+
+    studySessions.push({
+        id:
+            `session-${Date.now()}-${Math.random()
+                .toString(36)
+                .slice(2, 8)}`,
+
+        date:
+            getTodayKey(),
+
+        subject,
+
+        hours,
+
+        createdAt:
+            Date.now()
+    });
+
+    // Save this user's study data to Firebase.
+    if (window.daydreamersStudyCloud) {
+        try {
+            await window.daydreamersStudyCloud.save({
+                studySessions,
+                chapterProgress,
+                dailyLogs
+            });
+
+            console.log(
+                "DAYDREAMERS study session saved to Firebase."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DAYDREAMERS Firebase study save failed:",
+                error
+            );
+
+            // Remove the session again if Firebase save failed.
+            studySessions.pop();
+
+            alert(
+                "Could not save your study session to the cloud. Please check your internet connection and try again."
+            );
+
+            return;
+        }
+    }
+
+    // Keep the local copy too for now.
+    saveState();
+
+    closeStudyModal();
+
+    updateAllDisplays();
+
+    showPage(
+        getVisiblePageId() ||
+            "dashboard"
+    );
+}
 
     function setupFinalEditDeleteHandlers() {
         document.addEventListener("click", (event) => {
