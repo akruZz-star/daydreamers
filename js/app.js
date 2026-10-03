@@ -3209,9 +3209,12 @@ if (greetingElement) {
 
                     <div class="user-card-header">
 
-                        <div class="avatar">
-                            👦🏻
-                        </div>
+                       <div class="avatar">
+    <img
+        src="assets/ashjii-profile.jpg"
+        alt="ashjii profile photo"
+    >
+</div>
 
                         <div>
                             <p class="small-label">
@@ -3278,9 +3281,12 @@ if (greetingElement) {
 
                     <div class="user-card-header">
 
-                        <div class="avatar">
-                            👧🏻
-                        </div>
+                       <div class="avatar">
+    <img
+        src="assets/pothujii-profile.jpg"
+        alt="pothujii profile photo"
+    >
+</div>
 
                         <div>
 
