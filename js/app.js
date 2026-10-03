@@ -118,27 +118,7 @@
         }
     }
 }
-        localStorage.setItem(
-            STORAGE_KEYS.studySessions,
-            JSON.stringify(studySessions)
-        );
-
-        localStorage.setItem(
-            STORAGE_KEYS.chapterProgress,
-            JSON.stringify(chapterProgress)
-        );
-
-        localStorage.setItem(
-            STORAGE_KEYS.dailyLogs,
-            JSON.stringify(dailyLogs)
-        );
-
-        localStorage.setItem(
-            STORAGE_KEYS.activities,
-            JSON.stringify(activities)
-        );
-    }
-
+    
     function getTodayKey() {
         const now = new Date();
 
