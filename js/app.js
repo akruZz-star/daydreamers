@@ -22,11 +22,13 @@
     /* ---------------------------------------------------------
        STATE
        --------------------------------------------------------- */
-
     let studySessions = [];
     let chapterProgress = {};
     let dailyLogs = {};
     let activities = loadArray(STORAGE_KEYS.activities);
+
+    let firebaseStudyLoaded = false;
+ 
    
     let selectedDailyLogDate = getTodayKey();
     let selectedCalendarDate = getTodayKey();
@@ -72,7 +74,50 @@
         }
     }
 
-    function saveState() {
+    async function saveState() {
+    // Keep the existing local backup
+    localStorage.setItem(
+        STORAGE_KEYS.studySessions,
+        JSON.stringify(studySessions)
+    );
+
+    localStorage.setItem(
+        STORAGE_KEYS.chapterProgress,
+        JSON.stringify(chapterProgress)
+    );
+
+    localStorage.setItem(
+        STORAGE_KEYS.dailyLogs,
+        JSON.stringify(dailyLogs)
+    );
+
+    localStorage.setItem(
+        STORAGE_KEYS.activities,
+        JSON.stringify(activities)
+    );
+
+    // Save study data to Firebase when a user is logged in
+    if (
+        window.daydreamersStudyCloud &&
+        window.daydreamersProfile?.uid
+    ) {
+        try {
+            await window.daydreamersStudyCloud.save({
+                studySessions,
+                chapterProgress,
+                dailyLogs
+            });
+
+            firebaseStudyLoaded = true;
+
+        } catch (error) {
+            console.error(
+                "DAYDREAMERS Firebase study save failed:",
+                error
+            );
+        }
+    }
+}
         localStorage.setItem(
             STORAGE_KEYS.studySessions,
             JSON.stringify(studySessions)
@@ -3254,9 +3299,9 @@ if (greetingElement) {
                                 Chapters
                             </span>
 
-                            <strong>
+                           <strong id="dashboard-ash-chapters">
                                 ${getCompletedChapterCount()}
-                            </strong>
+                           </strong>
 
                         </div>
 
@@ -3322,9 +3367,9 @@ if (greetingElement) {
                                 Chapters
                             </span>
 
-                            <strong>
-                                0
-                            </strong>
+                           <strong id="dashboard-pothu-chapters">
+                               0
+                           </strong>
 
                         </div>
 
@@ -5101,22 +5146,25 @@ if (greetingElement) {
         return;
     }
 
-    studySessions.push({
-        id:
-            `session-${Date.now()}-${Math.random()
-                .toString(36)
-                .slice(2, 8)}`,
+   studySessions.push({
+    id:
+        `session-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 8)}`,
 
-        date:
-            getTodayKey(),
+    userId:
+        window.daydreamersProfile?.uid || "local",
 
-        subject,
+    date:
+        getTodayKey(),
 
-        hours,
+    subject,
 
-        createdAt:
-            Date.now()
-    });
+    hours,
+
+    createdAt:
+        Date.now()
+});
 
     // Save this user's study data to Firebase.
     if (window.daydreamersStudyCloud) {
