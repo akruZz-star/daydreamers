@@ -90,50 +90,34 @@ window.daydreamersAdmin = {
     },
 
 
-    async updateMember(
-        memberId,
-        data
-    ) {
+   async updateMember(
+    memberId,
+    data
+) {
 
-        if (!isOwner()) {
-            throw new Error(
-                "Owner permission required."
-            );
-        }
+    if (!isOwner()) {
+        throw new Error(
+            "Owner permission required."
+        );
+    }
 
-        if (!memberId) {
-            throw new Error(
-                "Member ID is required."
-            );
-        }
+    if (!memberId) {
+        throw new Error(
+            "Member ID is required."
+        );
+    }
 
-        const db = getDatabase();
+    const db = getDatabase();
 
-        const cleanData = {};
+    const cleanData = {};
 
-        if (
-            Object.prototype.hasOwnProperty.call(
-                data,
-                "displayName"
-            )
-        ) {
-            cleanData.displayName =
-                String(
-                    data.displayName || ""
-                ).trim();
-        }
+    // The Owner's role is permanently "owner".
+    // It cannot be changed through the Admin panel.
+    if (memberId === OWNER_UID) {
 
-        if (
-            Object.prototype.hasOwnProperty.call(
-                data,
-                "username"
-            )
-        ) {
-            cleanData.username =
-                String(
-                    data.username || ""
-                ).trim();
-        }
+        cleanData.role = "owner";
+
+    } else {
 
         if (
             Object.prototype.hasOwnProperty.call(
@@ -146,34 +130,59 @@ window.daydreamersAdmin = {
                     data.role || "member"
                 ).trim();
         }
+    }
 
-        if (
-            Object.prototype.hasOwnProperty.call(
-                data,
-                "permissions"
-            )
-        ) {
-            cleanData.permissions = {
-                ...DEFAULT_PERMISSIONS,
-                ...(data.permissions || {})
-            };
-        }
+    if (
+        Object.prototype.hasOwnProperty.call(
+            data,
+            "displayName"
+        )
+    ) {
+        cleanData.displayName =
+            String(
+                data.displayName || ""
+            ).trim();
+    }
 
-        if (!Object.keys(cleanData).length) {
-            throw new Error(
-                "No valid changes supplied."
-            );
-        }
+    if (
+        Object.prototype.hasOwnProperty.call(
+            data,
+            "username"
+        )
+    ) {
+        cleanData.username =
+            String(
+                data.username || ""
+            ).trim();
+    }
 
-        await updateDoc(
-            doc(
-                db,
-                "users",
-                memberId
-            ),
-            cleanData
+    if (
+        Object.prototype.hasOwnProperty.call(
+            data,
+            "permissions"
+        )
+    ) {
+        cleanData.permissions = {
+            ...DEFAULT_PERMISSIONS,
+            ...(data.permissions || {})
+        };
+    }
+
+    if (!Object.keys(cleanData).length) {
+        throw new Error(
+            "No valid changes supplied."
         );
-    },
+    }
+
+    await updateDoc(
+        doc(
+            db,
+            "users",
+            memberId
+        ),
+        cleanData
+    );
+},
 
 
     async deleteMember(
@@ -386,6 +395,28 @@ async function loadOwnerMembers() {
         const members =
             await window.daydreamersAdmin
                 .getMembers();
+        // Ensure the real Owner profile is permanently marked as Owner.
+const ownerMember =
+    members.find(
+        (member) =>
+            member.id === OWNER_UID
+    );
+
+if (
+    ownerMember &&
+    ownerMember.role !== "owner"
+) {
+
+    await window.daydreamersAdmin
+        .updateMember(
+            OWNER_UID,
+            {
+                role: "owner"
+            }
+        );
+
+    ownerMember.role = "owner";
+}
 
         members.sort(
             (a, b) => {
@@ -553,47 +584,60 @@ function createMemberCard(
                         Role
                     </label>
 
-                    <select
-                        data-role
-                        style="
-                            width:100%;
-                            padding:10px;
-                            border-radius:10px;
-                            border:1px solid rgba(100,100,140,.2);
-                        "
-                        ${
-                            isOwnerMember
-                                ? "disabled"
-                                : ""
-                        }
-                    >
+                  <select
+    data-role
+    style="
+        width:100%;
+        padding:10px;
+        border-radius:10px;
+        border:1px solid rgba(100,100,140,.2);
+    "
+    ${
+        isOwnerMember
+            ? "disabled"
+            : ""
+    }
+>
 
-                        <option
-                            value="member"
-                            ${
-                                (member.role ||
-                                    "member") ===
-                                "member"
-                                    ? "selected"
-                                    : ""
-                            }
-                        >
-                            Member
-                        </option>
+    ${
+        isOwnerMember
+            ? `
+                <option
+                    value="owner"
+                    selected
+                >
+                    Owner
+                </option>
+            `
+            : `
+                <option
+                    value="member"
+                    ${
+                        (member.role ||
+                            "member") ===
+                        "member"
+                            ? "selected"
+                            : ""
+                    }
+                >
+                    Member
+                </option>
 
-                        <option
-                            value="moderator"
-                            ${
-                                member.role ===
-                                "moderator"
-                                    ? "selected"
-                                    : ""
-                            }
-                        >
-                            Moderator
-                        </option>
+                <option
+                    value="moderator"
+                    ${
+                        member.role ===
+                        "moderator"
+                            ? "selected"
+                            : ""
+                    }
+                >
+                    Moderator
+                </option>
+            `
+    }
 
-                    </select>
+</select>
 
                 </div>
 
