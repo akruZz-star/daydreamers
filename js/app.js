@@ -3698,6 +3698,102 @@ function updateDashboardMemberCard(
        SETTINGS
        --------------------------------------------------------- */
 
+    async function daydreamersLogout() {
+        if (!window.daydreamersAuth) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        const confirmed = window.confirm("Log out of DAYDREAMERS?");
+        if (!confirmed) return;
+
+        try {
+            const { signOut } = await import(
+                "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js"
+            );
+            await signOut(window.daydreamersAuth);
+            window.location.href = "login.html";
+        } catch (error) {
+            console.error("DAYDREAMERS logout failed:", error);
+            alert("Could not log out. Please try again.");
+        }
+    }
+
+    function setupProfileAccountMenu() {
+        const profileButton = document.querySelector(".profile");
+        if (!profileButton || profileButton.dataset.accountMenuReady === "true") return;
+
+        profileButton.dataset.accountMenuReady = "true";
+        profileButton.setAttribute("role", "button");
+        profileButton.setAttribute("tabindex", "0");
+        profileButton.setAttribute("aria-label", "Account menu");
+        profileButton.style.cursor = "pointer";
+        profileButton.style.position = "relative";
+
+        const menu = document.createElement("div");
+        menu.id = "daydreamers-account-menu";
+        menu.style.cssText = `
+            position:absolute; right:0; top:calc(100% + 10px); width:230px;
+            padding:14px; background:var(--card-bg,#fff); color:inherit;
+            border:1px solid rgba(100,100,140,.16); border-radius:16px;
+            box-shadow:0 14px 35px rgba(30,30,70,.16); z-index:9999; display:none;
+        `;
+        profileButton.appendChild(menu);
+
+        const closeMenu = () => { menu.style.display = "none"; };
+
+        const renderMenu = () => {
+            const profile = window.daydreamersProfile || {};
+            const user = window.daydreamersAuth?.currentUser;
+            const name = profile.displayName || profile.username || "Guest";
+            const email = profile.email || user?.email || "";
+            const loggedIn = Boolean(user);
+
+            menu.innerHTML = `
+                <div style="font-weight:800;font-size:16px;margin-bottom:3px;">${escapeHTML(name)}</div>
+                <div style="font-size:12px;opacity:.65;margin-bottom:12px;word-break:break-word;">${escapeHTML(email || (loggedIn ? "Signed in" : "Guest mode"))}</div>
+                <button type="button" id="account-settings-action" style="width:100%;padding:10px 12px;border:0;border-radius:10px;background:rgba(99,102,241,.10);cursor:pointer;font-weight:700;margin-bottom:7px;">⚙️ Settings</button>
+                <button type="button" id="account-auth-action" style="width:100%;padding:10px 12px;border:0;border-radius:10px;background:rgba(99,102,241,.10);cursor:pointer;font-weight:700;">${loggedIn ? "🚪 Log out" : "🔐 Log in"}</button>
+            `;
+
+            menu.querySelector("#account-settings-action").addEventListener("click", (event) => {
+                event.stopPropagation();
+                closeMenu();
+                showPage("settings");
+            });
+
+            menu.querySelector("#account-auth-action").addEventListener("click", async (event) => {
+                event.stopPropagation();
+                if (loggedIn) {
+                    await daydreamersLogout();
+                } else {
+                    window.location.href = "login.html";
+                }
+            });
+        };
+
+        const toggleMenu = (event) => {
+            event.stopPropagation();
+            const opening = menu.style.display !== "block";
+            if (opening) {
+                renderMenu();
+                menu.style.display = "block";
+            } else {
+                closeMenu();
+            }
+        };
+
+        profileButton.addEventListener("click", toggleMenu);
+        profileButton.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                toggleMenu(event);
+            }
+        });
+        document.addEventListener("click", closeMenu);
+    }
+
+
     function renderSettings() {
         const page =
             $("settings");
@@ -3706,27 +3802,28 @@ function updateDashboardMemberCard(
             return;
         }
 
+        const profile = window.daydreamersProfile || {};
+        const loggedIn = Boolean(window.daydreamersAuth?.currentUser);
+        const displayName = profile.displayName || profile.username || "Guest";
+        const email = profile.email || window.daydreamersAuth?.currentUser?.email || "";
+
         page.innerHTML = `
             <div class="page-header">
-
                 <div>
-
-                    <p class="small-label">
-                        DAYDREAMERS
-                    </p>
-
-                    <h1>
-                        Settings
-                    </h1>
-
-                    <p class="muted">
-                        Local website settings and data.
-                    </p>
-
+                    <p class="small-label">DAYDREAMERS</p>
+                    <h1>Settings</h1>
+                    <p class="muted">Manage your account, study preferences and local data.</p>
                 </div>
-
             </div>
 
+            <div class="tracker-card" style="margin-bottom:20px;">
+                <p class="small-label">ACCOUNT</p>
+                <h2>${escapeHTML(displayName)}</h2>
+                <p class="muted" style="margin:6px 0 16px;">${loggedIn ? escapeHTML(email || "Signed in to DAYDREAMERS") : "You are currently browsing as a guest."}</p>
+                <button id="settings-auth-button" class="save-button" type="button">
+                    ${loggedIn ? "🚪 Log out" : "🔐 Log in"}
+                </button>
+            </div>
 
             <div class="tracker-card">
 
@@ -3772,6 +3869,17 @@ function updateDashboardMemberCard(
 
             </div>
         `;
+
+        const authButton = $("settings-auth-button");
+        if (authButton) {
+            authButton.addEventListener("click", () => {
+                if (loggedIn) {
+                    daydreamersLogout();
+                } else {
+                    window.location.href = "login.html";
+                }
+            });
+        }
 
         const exportButton =
             $("export-data-button");
@@ -5544,6 +5652,7 @@ async function initializeDaydreamers() {
     }
 
     updateDateAndGreeting();
+    setupProfileAccountMenu();
     setupNavigation();
     setupStudyModal();
     setupChapterFilters();
