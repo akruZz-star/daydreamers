@@ -4369,7 +4369,7 @@ function updateDashboardMemberCard(
             const taskNav = nav.cloneNode(true);
             taskNav.dataset.page = "tasks";
             taskNav.classList.remove("active");
-            taskNav.textContent = "✓ Tasks";
+            taskNav.innerHTML = `<span style="display:inline-flex;width:24px;justify-content:center;align-items:center;font-size:18px;">☑️</span><span>Tasks</span>`;
             nav.parentElement.insertBefore(taskNav, nav.nextSibling);
         }
 
