@@ -4776,45 +4776,209 @@ function updateDashboardMemberCard(
         }
     }
 
-    function renderSharedTasks(errorMessage = "") {
-        const list = $("shared-tasks-list");
-        if (!list) return;
+ function renderSharedTasks(errorMessage = "") {
+    const list = $("shared-tasks-list");
+    if (!list) return;
 
-        const uid = window.daydreamersProfile?.uid;
-        setText("shared-tasks-active-count", sharedTasks.filter(t => !t.completed).length);
-        setText("shared-tasks-done-count", sharedTasks.filter(t => t.completed).length);
-        setText("shared-tasks-total-count", sharedTasks.length);
+    const uid = window.daydreamersProfile?.uid;
 
-        if (errorMessage) {
-            list.innerHTML = `<div class="tracker-empty-state"><div>⚠️</div><p>${escapeHTML(errorMessage)}</p></div>`;
-            return;
-        }
+    setText(
+        "shared-tasks-active-count",
+        sharedTasks.filter(t => !t.completed).length
+    );
 
-        if (!sharedTasks.length) {
-            list.innerHTML = `<div class="tracker-empty-state"><div>🤝</div><p>No shared tasks yet.</p><span>Create a task for your friend above.</span></div>`;
-            return;
-        }
+    setText(
+        "shared-tasks-done-count",
+        sharedTasks.filter(t => t.completed).length
+    );
 
-        list.innerHTML = sharedTasks.map(task => {
-            const mine = task.ownerUid === uid;
-            const person = mine ? `For ${task.assigneeName || "friend"}` : `From ${task.ownerName || "friend"}`;
-            const priority = task.priority === "high" ? "High" : task.priority === "low" ? "Low" : "Medium";
-            return `<div class="tracker-card" style="margin-bottom:12px;opacity:${task.completed ? ".68" : "1"};">
-                <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
-                    <div style="display:flex;gap:12px;align-items:flex-start;min-width:0;">
-                        <input type="checkbox" data-shared-complete="${escapeHTML(task.id)}" ${task.completed ? "checked" : ""} style="margin-top:5px;width:18px;height:18px;">
-                        <div style="min-width:0;">
-                            <strong style="font-size:16px;${task.completed ? "text-decoration:line-through;" : ""}">${escapeHTML(task.title)}</strong>
-                            <div class="muted" style="margin-top:5px;">${escapeHTML(person)} • ${escapeHTML(getTaskDateLabel(task.date))}${task.time ? ` • ${escapeHTML(task.time)}` : ""}</div>
-                            ${task.subject ? `<div class="muted" style="margin-top:4px;">${escapeHTML(getSubjectDisplayName(task.subject))} • ${priority}</div>` : `<div class="muted" style="margin-top:4px;">${priority}</div>`}
-                            ${task.notes ? `<div class="muted" style="margin-top:6px;">${escapeHTML(task.notes)}</div>` : ""}
-                        </div>
-                    </div>
-                    ${mine ? `<button type="button" data-shared-delete="${escapeHTML(task.id)}">Delete</button>` : ""}
-                </div>
-            </div>`;
-        }).join("");
+    setText(
+        "shared-tasks-total-count",
+        sharedTasks.length
+    );
+
+    if (errorMessage) {
+        list.innerHTML = `
+            <div class="tracker-empty-state">
+                <div style="font-size:28px;">⚠️</div>
+                <p>${escapeHTML(errorMessage)}</p>
+            </div>
+        `;
+        return;
     }
+
+    if (!sharedTasks.length) {
+        list.innerHTML = `
+            <div class="tracker-empty-state">
+                <div style="font-size:28px;">🤝</div>
+                <p>No shared tasks yet.</p>
+                <span>Create a task for your friend above.</span>
+            </div>
+        `;
+        return;
+    }
+
+    const subjectIcons = {
+        "Accounts": "📚",
+        "Law": "⚖️",
+        "Taxation": "🧾",
+        "Costing": "📊",
+        "Audit": "🔍",
+        "FM & SM": "💼"
+    };
+
+    const priorityIcons = {
+        high: "🔥",
+        medium: "●",
+        low: "○"
+    };
+
+    list.innerHTML = sharedTasks.map(task => {
+
+        const mine = task.ownerUid === uid;
+
+        const person = mine
+            ? `For ${task.assigneeName || "friend"}`
+            : `From ${task.ownerName || "friend"}`;
+
+        const priority =
+            task.priority === "high"
+                ? "High"
+                : task.priority === "low"
+                    ? "Low"
+                    : "Medium";
+
+        const subjectIcon =
+            subjectIcons[task.subject] || "🤝";
+
+        const priorityIcon =
+            priorityIcons[task.priority] || "●";
+
+        return `
+            <div
+                class="tracker-card"
+                style="
+                    margin-bottom:12px;
+                    opacity:${task.completed ? ".68" : "1"};
+                "
+            >
+
+                <div
+                    style="
+                        display:flex;
+                        gap:14px;
+                        align-items:flex-start;
+                        justify-content:space-between;
+                    "
+                >
+
+                    <div
+                        style="
+                            display:flex;
+                            gap:12px;
+                            align-items:flex-start;
+                            min-width:0;
+                            flex:1;
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            data-shared-complete="${escapeHTML(task.id)}"
+                            ${task.completed ? "checked" : ""}
+                            style="
+                                margin-top:7px;
+                                width:18px;
+                                height:18px;
+                                flex-shrink:0;
+                            "
+                        >
+
+                        <div
+                            style="
+                                width:42px;
+                                height:42px;
+                                min-width:42px;
+                                border-radius:12px;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                background:rgba(127,127,127,.12);
+                                font-size:21px;
+                            "
+                        >
+                            ${subjectIcon}
+                        </div>
+
+                        <div style="min-width:0;">
+
+                            <strong
+                                style="
+                                    font-size:16px;
+                                    ${task.completed ? "text-decoration:line-through;" : ""}
+                                "
+                            >
+                                ${escapeHTML(task.title)}
+                            </strong>
+
+                            <div
+                                class="muted"
+                                style="margin-top:5px;"
+                            >
+                                ${escapeHTML(person)}
+                                •
+                                ${escapeHTML(getTaskDateLabel(task.date))}
+                                ${task.time ? ` • ${escapeHTML(task.time)}` : ""}
+                            </div>
+
+                            <div
+                                class="muted"
+                                style="margin-top:4px;"
+                            >
+                                ${task.subject
+                                    ? `${escapeHTML(getSubjectDisplayName(task.subject))} • `
+                                    : ""
+                                }
+                                ${priorityIcon} ${priority}
+                            </div>
+
+                            ${
+                                task.notes
+                                    ? `
+                                    <div
+                                        class="muted"
+                                        style="margin-top:6px;"
+                                    >
+                                        ${escapeHTML(task.notes)}
+                                    </div>
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+                    ${
+                        mine
+                            ? `
+                            <button
+                                type="button"
+                                data-shared-delete="${escapeHTML(task.id)}"
+                            >
+                                Delete
+                            </button>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+        `;
+
+    }).join("");
+}
 
     function setupSharedTasks() {
         if ($("shared-tasks")) return;
