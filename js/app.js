@@ -4239,60 +4239,212 @@ function updateDashboardMemberCard(
     }
 
     function renderTasks() {
-        const page = $("tasks");
-        if (!page) return;
+    const page = $("tasks");
+    if (!page) return;
 
-        const filter = $("task-filter")?.value || "today";
-        const today = getTaskTodayKey();
-        let visible = tasks.slice();
+    const filter = $("task-filter")?.value || "today";
+    const today = getTaskTodayKey();
+    let visible = tasks.slice();
 
-        if (filter === "today") visible = visible.filter(t => t.date === today && !t.completed);
-        if (filter === "upcoming") visible = visible.filter(t => t.date && t.date >= today && !t.completed);
-        if (filter === "completed") visible = visible.filter(t => t.completed);
-        if (filter === "all") visible = visible.filter(() => true);
+    if (filter === "today") visible = visible.filter(t => t.date === today && !t.completed);
+    if (filter === "upcoming") visible = visible.filter(t => t.date && t.date >= today && !t.completed);
+    if (filter === "completed") visible = visible.filter(t => t.completed);
+    if (filter === "all") visible = visible.filter(() => true);
 
-        visible.sort((a,b) => {
-            if (a.completed !== b.completed) return a.completed ? 1 : -1;
-            const ad = `${a.date || "9999-99-99"}T${a.time || "23:59"}`;
-            const bd = `${b.date || "9999-99-99"}T${b.time || "23:59"}`;
-            return ad.localeCompare(bd);
-        });
+    visible.sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
 
-        const list = $("tasks-list");
-        if (!list) return;
+        const ad = `${a.date || "9999-99-99"}T${a.time || "23:59"}`;
+        const bd = `${b.date || "9999-99-99"}T${b.time || "23:59"}`;
 
-        const active = tasks.filter(t => !t.completed).length;
-        const done = tasks.filter(t => t.completed).length;
-        setText("tasks-active-count", active);
-        setText("tasks-done-count", done);
-        setText("tasks-total-count", tasks.length);
+        return ad.localeCompare(bd);
+    });
 
-        if (!visible.length) {
-            list.innerHTML = `<div class="tracker-empty-state"><div>✅</div><p>No tasks here.</p><span>Add a task above and keep your CA day organized.</span></div>`;
-            return;
-        }
+    const list = $("tasks-list");
+    if (!list) return;
 
-        list.innerHTML = visible.map(task => {
-            const priorityLabel = task.priority === "high" ? "High" : task.priority === "low" ? "Low" : "Medium";
-            return `<div class="tracker-card" style="margin-bottom:12px;opacity:${task.completed ? ".68" : "1"};">
-                <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
-                    <div style="display:flex;gap:12px;align-items:flex-start;min-width:0;">
-                        <input type="checkbox" data-task-complete="${escapeHTML(task.id)}" ${task.completed ? "checked" : ""} style="margin-top:5px;width:18px;height:18px;">
+    const active = tasks.filter(t => !t.completed).length;
+    const done = tasks.filter(t => t.completed).length;
+
+    setText("tasks-active-count", active);
+    setText("tasks-done-count", done);
+    setText("tasks-total-count", tasks.length);
+
+    if (!visible.length) {
+        list.innerHTML = `
+            <div class="tracker-empty-state">
+                <div style="font-size:28px;">✓</div>
+                <p>No tasks here.</p>
+                <span>Add a task above and keep your CA day organized.</span>
+            </div>
+        `;
+        return;
+    }
+
+    const subjectIcons = {
+        "Accounts": "📚",
+        "Law": "⚖️",
+        "Taxation": "🧾",
+        "Costing": "📊",
+        "Audit": "🔍",
+        "FM & SM": "💼"
+    };
+
+    const priorityIcons = {
+        high: "🔥",
+        medium: "●",
+        low: "○"
+    };
+
+    list.innerHTML = visible.map(task => {
+        const priorityLabel =
+            task.priority === "high"
+                ? "High"
+                : task.priority === "low"
+                    ? "Low"
+                    : "Medium";
+
+        const subjectIcon = subjectIcons[task.subject] || "✓";
+        const priorityIcon = priorityIcons[task.priority] || "●";
+
+        return `
+            <div
+                class="tracker-card"
+                style="
+                    margin-bottom:12px;
+                    opacity:${task.completed ? ".68" : "1"};
+                "
+            >
+                <div
+                    style="
+                        display:flex;
+                        gap:14px;
+                        align-items:flex-start;
+                        justify-content:space-between;
+                    "
+                >
+
+                    <div
+                        style="
+                            display:flex;
+                            gap:12px;
+                            align-items:flex-start;
+                            min-width:0;
+                            flex:1;
+                        "
+                    >
+
+                        <input
+                            type="checkbox"
+                            data-task-complete="${escapeHTML(task.id)}"
+                            ${task.completed ? "checked" : ""}
+                            style="
+                                margin-top:7px;
+                                width:18px;
+                                height:18px;
+                                flex-shrink:0;
+                            "
+                        >
+
+                        <div
+                            style="
+                                width:42px;
+                                height:42px;
+                                min-width:42px;
+                                border-radius:12px;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                background:rgba(127,127,127,.12);
+                                font-size:21px;
+                            "
+                            title="${escapeHTML(
+                                task.subject
+                                    ? getSubjectDisplayName(task.subject)
+                                    : "Task"
+                            )}"
+                        >
+                            ${subjectIcon}
+                        </div>
+
                         <div style="min-width:0;">
-                            <strong style="font-size:16px;${task.completed ? "text-decoration:line-through;" : ""}">${escapeHTML(task.title)}</strong>
-                            <div class="muted" style="margin-top:5px;">${escapeHTML(getTaskDateLabel(task.date))}${task.time ? ` • ${escapeHTML(task.time)}` : ""}${task.subject ? ` • ${escapeHTML(getSubjectDisplayName(task.subject))}` : ""}</div>
-                            ${task.notes ? `<div class="muted" style="margin-top:6px;">${escapeHTML(task.notes)}</div>` : ""}
+
+                            <strong
+                                style="
+                                    font-size:16px;
+                                    ${task.completed ? "text-decoration:line-through;" : ""}
+                                "
+                            >
+                                ${escapeHTML(task.title)}
+                            </strong>
+
+                            <div
+                                class="muted"
+                                style="margin-top:5px;"
+                            >
+                                ${escapeHTML(getTaskDateLabel(task.date))}
+                                ${task.time ? ` • ${escapeHTML(task.time)}` : ""}
+                                ${task.subject ? ` • ${escapeHTML(getSubjectDisplayName(task.subject))}` : ""}
+                            </div>
+
+                            ${
+                                task.notes
+                                    ? `
+                                    <div
+                                        class="muted"
+                                        style="margin-top:6px;"
+                                    >
+                                        ${escapeHTML(task.notes)}
+                                    </div>
+                                    `
+                                    : ""
+                            }
+
                         </div>
                     </div>
-                    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
-                        <span style="font-size:12px;text-transform:uppercase;">${priorityLabel}</span>
-                        <button type="button" data-task-edit="${escapeHTML(task.id)}">Edit</button>
-                        <button type="button" data-task-delete="${escapeHTML(task.id)}">Delete</button>
+
+                    <div
+                        style="
+                            display:flex;
+                            gap:6px;
+                            align-items:center;
+                            flex-shrink:0;
+                            flex-wrap:wrap;
+                            justify-content:flex-end;
+                        "
+                    >
+
+                        <span
+                            style="
+                                font-size:12px;
+                                text-transform:uppercase;
+                                white-space:nowrap;
+                            "
+                        >
+                            ${priorityIcon} ${priorityLabel}
+                        </span>
+
+                        <button
+                            type="button"
+                            data-task-edit="${escapeHTML(task.id)}"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            data-task-delete="${escapeHTML(task.id)}"
+                        >
+                            Delete
+                        </button>
+
                     </div>
+
                 </div>
-            </div>`;
-        }).join("");
-    }
+            </div>
+        `;
+    }).join("");
+}
 
     function setupTasks() {
         if ($("tasks")) return;
