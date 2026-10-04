@@ -4302,7 +4302,16 @@ function updateDashboardMemberCard(
             const taskNav = nav.cloneNode(true);
             taskNav.dataset.page = "tasks";
             taskNav.classList.remove("active");
-            taskNav.textContent = "☑️ Tasks";
+            taskNav.innerHTML = `
+                <span class="daydreamers-nav-icon" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:30px;min-width:30px;height:30px;font-size:0;line-height:1;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="17" rx="3" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 9.5L8.5 11L11 8.5M13 10H18M7 15.5L8.5 17L11 14.5M13 16H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="daydreamers-nav-label" style="margin-left:8px;">Tasks</span>
+            `;
+            taskNav.setAttribute("title", "Tasks");
             nav.parentElement.insertBefore(taskNav, nav.nextSibling);
         }
 
@@ -4667,7 +4676,18 @@ function updateDashboardMemberCard(
             const sharedNav = nav.cloneNode(true);
             sharedNav.dataset.page = "shared-tasks";
             sharedNav.classList.remove("active");
-            sharedNav.textContent = "🤝 Shared Tasks";
+            sharedNav.innerHTML = `
+                <span class="daydreamers-nav-icon" aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:30px;min-width:30px;height:30px;font-size:0;line-height:1;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 11.5A3.5 3.5 0 1 0 9 4.5A3.5 3.5 0 0 0 9 11.5Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M15.5 11A3 3 0 1 0 15.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M3.5 19.5C4.1 15.8 6.2 14 9 14C11.8 14 13.9 15.8 14.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M15 14.5C17.7 14.6 19.7 16.2 20.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span class="daydreamers-nav-label" style="margin-left:8px;">Shared Tasks</span>
+            `;
+            sharedNav.setAttribute("title", "Shared Tasks");
             nav.parentElement.insertBefore(sharedNav, nav.nextSibling);
         }
 
