@@ -69,54 +69,176 @@ window.daydreamersStudyCloud = {
     },
 
 
-    async save(data) {
+  async save(data) {
 
-        await window.daydreamersProfileReady;
+    await window.daydreamersProfileReady;
 
-        const profile =
-            window.daydreamersProfile;
+    const profile =
+        window.daydreamersProfile;
 
-        if (!profile?.uid) {
-            throw new Error("User is not logged in.");
+    if (!profile?.uid) {
+        throw new Error("User is not logged in.");
+    }
+
+    const db =
+        window.daydreamersDb;
+
+    const userRef =
+        doc(
+            db,
+            "users",
+            profile.uid
+        );
+
+    const studySessions =
+        Array.isArray(data.studySessions)
+            ? data.studySessions
+            : [];
+
+    const chapterProgress =
+        data.chapterProgress || {};
+
+    const dailyLogs =
+        data.dailyLogs || {};
+
+    // Save private data
+    await setDoc(
+        userRef,
+        {
+            studySessions,
+            chapterProgress,
+            dailyLogs,
+            updatedAt:
+                serverTimestamp()
+        },
+        {
+            merge: true
         }
+    );
 
-        const db =
-            window.daydreamersDb;
+    // Calculate today's study
+    const today =
+        new Date();
 
-        const ref =
-            doc(
-                db,
-                "users",
-                profile.uid
+    const year =
+        today.getFullYear();
+
+    const month =
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            today.getDate()
+        ).padStart(2, "0");
+
+    const todayKey =
+        `${year}-${month}-${day}`;
+
+    const todayHours =
+        studySessions
+            .filter(
+                session =>
+                    session.date === todayKey
+            )
+            .reduce(
+                (total, session) =>
+                    total +
+                    Number(session.hours || 0),
+                0
             );
 
-        await setDoc(
-            ref,
-            {
-                studySessions:
-                    Array.isArray(
-                        data.studySessions
-                    )
-                        ? data.studySessions
-                        : [],
+    // Calculate completed chapters
+    const completedChapters =
+        Object.values(
+            chapterProgress
+        ).filter(
+            value =>
+                Number(value) >= 100
+        ).length;
 
-                chapterProgress:
-                    data.chapterProgress || {},
+    // Calculate weekly study
+    const weekStart =
+        new Date(today);
 
-                dailyLogs:
-                    data.dailyLogs || {},
+    weekStart.setDate(
+        today.getDate() - 6
+    );
 
-                updatedAt:
-                    serverTimestamp()
-            },
-            {
-                merge: true
-            }
+    weekStart.setHours(
+        0, 0, 0, 0
+    );
+
+    const weeklyHours =
+        studySessions
+            .filter(session => {
+
+                if (!session.date) {
+                    return false;
+                }
+
+                const sessionDate =
+                    new Date(
+                        `${session.date}T00:00:00`
+                    );
+
+                return (
+                    sessionDate >=
+                    weekStart &&
+                    sessionDate <=
+                    today
+                );
+            })
+            .reduce(
+                (total, session) =>
+                    total +
+                    Number(session.hours || 0),
+                0
+            );
+
+    // Save ONLY safe shared statistics
+    const sharedStatsRef =
+        doc(
+            db,
+            "sharedStats",
+            profile.uid
         );
-    }
-};
 
+    await setDoc(
+        sharedStatsRef,
+        {
+            uid:
+                profile.uid,
 
-console.log(
-    "DAYDREAMERS Firebase study module loaded."
-);
+            displayName:
+                profile.displayName ||
+                profile.username ||
+                "User",
+
+            username:
+                profile.username ||
+                "user",
+
+            role:
+                profile.role ||
+                "member",
+
+            todayHours,
+
+            weeklyHours,
+
+            completedChapters,
+
+            updatedAt:
+                serverTimestamp()
+        },
+        {
+            merge: true
+        }
+    );
+
+    console.log(
+        "DAYDREAMERS private data + shared stats saved."
+    );
+}
