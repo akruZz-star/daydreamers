@@ -896,112 +896,136 @@ if (greetingElement) {
        DASHBOARD
        --------------------------------------------------------- */
 
-    function renderDashboard() {
-        const today =
-            getTodayKey();
+  async function renderDashboard() {
+    const today =
+        getTodayKey();
 
-        const todayHours =
-            getStudyHoursForDate(
+    const todayHours =
+        getStudyHoursForDate(
+            today
+        );
+
+    const weeklyHours =
+        getWeeklyStudyHours();
+
+    const streak =
+        getStudyStreak();
+
+    const completed =
+        getCompletedChapterCount();
+
+    const chapterTotal =
+        getAllChapters().length;
+
+    const chapterPercent =
+        getOverallChapterProgress();
+
+    setText(
+        "dashboard-study-total",
+        formatHours(
+            todayHours
+        )
+    );
+
+    const goalPercent =
+        Math.min(
+            100,
+            Math.round(
+                (todayHours /
+                    getDailyGoalHours()) *
+                    100
+            )
+        );
+
+    setText(
+        "dashboard-goal-percent",
+        `${goalPercent}%`
+    );
+
+    setText(
+        "dashboard-streak",
+        `${streak} days`
+    );
+
+    setText(
+        "dashboard-chapter-percent",
+        `${chapterPercent}%`
+    );
+
+    setText(
+        "dashboard-chapter-count",
+        `${completed} of ${chapterTotal} chapters completed`
+    );
+
+    setWidth(
+        "dashboard-goal-bar",
+        goalPercent
+    );
+
+    setWidth(
+        "dashboard-chapter-bar",
+        chapterPercent
+    );
+
+    setText(
+        "dashboard-ash-study",
+        formatHours(todayHours)
+    );
+
+    setText(
+        "dashboard-ash-chapters",
+        completed
+    );
+
+    setText(
+        "dashboard-ash-streak",
+        `${streak} days 🔥`
+    );
+
+    setText(
+        "dashboard-weekly-total",
+        formatHoursCompact(
+            weeklyHours
+        )
+    );
+
+    renderDashboardBreakdown(
+        today
+    );
+
+    renderDashboardSessions(
+        today
+    );
+
+    renderDashboardChapterProgress();
+    renderDashboardRecentActivities();
+    renderDashboardMiniCalendar();
+
+    // Load the two member dashboard cards
+    if (
+        window.daydreamersDashboardCloud
+    ) {
+        try {
+
+            const members =
+                await window.daydreamersDashboardCloud
+                    .getDashboardMembers();
+
+            renderDashboardMemberCards(
+                members,
                 today
             );
 
-        const weeklyHours =
-            getWeeklyStudyHours();
+        } catch (error) {
 
-        const streak =
-            getStudyStreak();
-
-        const completed =
-            getCompletedChapterCount();
-
-        const chapterTotal =
-            getAllChapters().length;
-
-        const chapterPercent =
-            getOverallChapterProgress();
-
-        setText(
-            "dashboard-study-total",
-            formatHours(
-                todayHours
-            )
-        );
-
-        const goalPercent =
-            Math.min(
-                100,
-                Math.round(
-                    (todayHours /
-                        getDailyGoalHours()) *
-                        100
-                )
+            console.error(
+                "DAYDREAMERS dashboard member data failed:",
+                error
             );
 
-        setText(
-            "dashboard-goal-percent",
-            `${goalPercent}%`
-        );
-
-        setText(
-            "dashboard-streak",
-            `${streak} days`
-        );
-
-        setText(
-            "dashboard-chapter-percent",
-            `${chapterPercent}%`
-        );
-
-        setText(
-            "dashboard-chapter-count",
-            `${completed} of ${chapterTotal} chapters completed`
-        );
-
-        setWidth(
-            "dashboard-goal-bar",
-            goalPercent
-        );
-
-        setWidth(
-            "dashboard-chapter-bar",
-            chapterPercent
-        );
-
-        setText(
-            "dashboard-ash-study",
-            formatHours(todayHours)
-        );
-
-        setText(
-            "dashboard-ash-chapters",
-            completed
-        );
-
-        setText(
-            "dashboard-ash-streak",
-            `${streak} days 🔥`
-        );
-
-        setText(
-            "dashboard-weekly-total",
-            formatHoursCompact(
-                weeklyHours
-            )
-        );
-
-        renderDashboardBreakdown(
-            today
-        );
-
-        renderDashboardSessions(
-            today
-        );
-
-        renderDashboardChapterProgress();
-        renderDashboardRecentActivities();
-        renderDashboardMiniCalendar();
+        }
     }
-
+}
     function renderDashboardRecentActivities() {
         const container = $("dashboard-recent-activities");
         if (!container) return;
