@@ -4167,8 +4167,88 @@ function updateDashboardMemberCard(
         return formatShortDate(dateKey);
     }
 
-    function saveTasksOnly() {
-        localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
+    let firebaseTasksModulePromise = null;
+
+    async function getFirebaseTasksModule() {
+        if (!firebaseTasksModulePromise) {
+            firebaseTasksModulePromise = import(
+                "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"
+            );
+        }
+        return firebaseTasksModulePromise;
+    }
+
+    async function loadTasksFromCloud() {
+        if (!window.daydreamersDb || !window.daydreamersProfile?.uid) {
+            return false;
+        }
+
+        try {
+            const { doc, getDoc } = await getFirebaseTasksModule();
+            const snapshot = await getDoc(
+                doc(window.daydreamersDb, "users", window.daydreamersProfile.uid)
+            );
+
+            if (snapshot.exists()) {
+                const data = snapshot.data() || {};
+                if (Array.isArray(data.tasks)) {
+                    tasks = data.tasks;
+                    localStorage.setItem(
+                        STORAGE_KEYS.tasks,
+                        JSON.stringify(tasks)
+                    );
+                    return true;
+                }
+            }
+
+            // First cloud load: preserve any existing local tasks.
+            if (tasks.length) {
+                await saveTasksOnly();
+            }
+            return false;
+        } catch (error) {
+            console.error(
+                "DAYDREAMERS Firebase task load failed:",
+                error
+            );
+            return false;
+        }
+    }
+
+    async function saveTasksOnly() {
+        localStorage.setItem(
+            STORAGE_KEYS.tasks,
+            JSON.stringify(tasks)
+        );
+
+        if (!window.daydreamersDb || !window.daydreamersProfile?.uid) {
+            return;
+        }
+
+        try {
+            const { doc, setDoc, serverTimestamp } =
+                await getFirebaseTasksModule();
+
+            await setDoc(
+                doc(
+                    window.daydreamersDb,
+                    "users",
+                    window.daydreamersProfile.uid
+                ),
+                {
+                    tasks,
+                    tasksUpdatedAt: serverTimestamp()
+                },
+                { merge: true }
+            );
+
+            console.log("DAYDREAMERS tasks saved to Firebase.");
+        } catch (error) {
+            console.error(
+                "DAYDREAMERS Firebase task save failed:",
+                error
+            );
+        }
     }
 
     function createTaskFromForm() {
@@ -4289,10 +4369,7 @@ function updateDashboardMemberCard(
             const taskNav = nav.cloneNode(true);
             taskNav.dataset.page = "tasks";
             taskNav.classList.remove("active");
-            const label = taskNav.querySelector("span:last-child");
-            if (label) label.textContent = "Tasks";
-            const icon = taskNav.querySelector(".nav-icon");
-            if (icon) icon.textContent = "✓";
+            taskNav.textContent = "✓ Tasks";
             nav.parentElement.insertBefore(taskNav, nav.nextSibling);
         }
 
@@ -5652,6 +5729,8 @@ async function initializeDaydreamers() {
     }
 
     updateDateAndGreeting();
+    await loadTasksFromCloud();
+    setupTasks();
     setupProfileAccountMenu();
     setupNavigation();
     setupStudyModal();
