@@ -1,5 +1,5 @@
 // =========================================================
-// DAYDREAMERS — FIREBASE DASHBOARD DATA
+// DAYDREAMERS — FIREBASE DASHBOARD SHARED STATS
 // =========================================================
 
 import {
@@ -19,7 +19,10 @@ window.daydreamersDashboardCloud = {
 
         const snapshot =
             await getDocs(
-                collection(db, "users")
+                collection(
+                    db,
+                    "sharedStats"
+                )
             );
 
         return snapshot.docs.map(item => ({
@@ -40,7 +43,7 @@ window.daydreamersDashboardCloud = {
         const ref =
             doc(
                 db,
-                "users",
+                "sharedStats",
                 uid
             );
 
@@ -71,7 +74,6 @@ window.daydreamersDashboardCloud = {
     }
 };
 
-
 console.log(
-    "DAYDREAMERS Firebase dashboard module loaded."
+    "DAYDREAMERS Firebase dashboard shared stats module loaded."
 );
