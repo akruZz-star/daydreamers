@@ -3311,14 +3311,18 @@ function updateDashboardMemberCard(
     async function renderCompare() {
         const page = $("compare");
 
-        if (!page) return;
+        if (!page) {
+            return;
+        }
 
         const profile = window.daydreamersProfile || {};
-        const currentUsername = String(
-            profile.username || profile.displayName || "ashjii"
-        ).toLowerCase();
+        const currentUsername =
+            profile.username ||
+            profile.displayName ||
+            "ashjii";
 
         const isPothu = currentUsername === "pothujii";
+
         const yourName = isPothu ? "pothujii" : "ashjii";
         const friendName = isPothu ? "ashjii" : "pothujii";
 
@@ -3330,151 +3334,237 @@ function updateDashboardMemberCard(
             ? "assets/ashjii-profile.jpg"
             : "assets/pothujii-profile.jpg";
 
+        const yourTodayHours =
+            getStudyHoursForDate(getTodayKey());
+
+        const yourCompleted =
+            getCompletedChapterCount();
+
+        const yourProgress =
+            getOverallChapterProgress();
+
         page.innerHTML = `
             <div class="page-header">
                 <div>
                     <p class="small-label">TWO FRIENDS</p>
                     <h1>Compare Us</h1>
                     <p class="muted">
-                        Live shared comparison for ${escapeHTML(yourName)} and ${escapeHTML(friendName)}.
+                        A live shared comparison for ${escapeHTML(yourName)} and ${escapeHTML(friendName)}.
                     </p>
                 </div>
             </div>
 
             <div class="user-cards">
+
                 <div class="user-card ${isPothu ? "pothujii-card" : "ashjii-card"}">
                     <div class="user-card-header">
                         <div class="avatar">
-                            <img src="${yourPhoto}" alt="${escapeHTML(yourName)} profile photo">
+                            <img
+                                src="${yourPhoto}"
+                                alt="${escapeHTML(yourName)} profile photo"
+                            >
                         </div>
+
                         <div>
                             <p class="small-label">YOUR JOURNEY</p>
                             <h2>${escapeHTML(yourName)}</h2>
                         </div>
                     </div>
+
                     <div class="stats-grid">
-                        <div class="stat"><span>Today</span><strong id="compare-your-today">Loading…</strong></div>
-                        <div class="stat"><span>Chapters</span><strong id="compare-your-chapters">Loading…</strong></div>
-                        <div class="stat"><span>Progress</span><strong id="compare-your-progress">Loading…</strong></div>
+                        <div class="stat">
+                            <span>Today</span>
+                            <strong id="compare-your-today">
+                                ${escapeHTML(formatHours(yourTodayHours))}
+                            </strong>
+                        </div>
+
+                        <div class="stat">
+                            <span>Chapters</span>
+                            <strong id="compare-your-chapters">
+                                ${yourCompleted}
+                            </strong>
+                        </div>
+
+                        <div class="stat">
+                            <span>Progress</span>
+                            <strong id="compare-your-progress">
+                                ${yourProgress}%
+                            </strong>
+                        </div>
                     </div>
                 </div>
 
                 <div class="user-card ${isPothu ? "ashjii-card" : "pothujii-card"}">
                     <div class="user-card-header">
                         <div class="avatar">
-                            <img src="${friendPhoto}" alt="${escapeHTML(friendName)} profile photo">
+                            <img
+                                src="${friendPhoto}"
+                                alt="${escapeHTML(friendName)} profile photo"
+                            >
                         </div>
+
                         <div>
                             <p class="small-label">FRIEND'S JOURNEY</p>
                             <h2>${escapeHTML(friendName)}</h2>
                         </div>
                     </div>
+
                     <div class="stats-grid">
-                        <div class="stat"><span>Today</span><strong id="compare-friend-today">Loading…</strong></div>
-                        <div class="stat"><span>Chapters</span><strong id="compare-friend-chapters">Loading…</strong></div>
-                        <div class="stat"><span>Progress</span><strong id="compare-friend-progress">Loading…</strong></div>
+                        <div class="stat">
+                            <span>Today</span>
+                            <strong id="compare-friend-today">Loading…</strong>
+                        </div>
+
+                        <div class="stat">
+                            <span>Chapters</span>
+                            <strong id="compare-friend-chapters">Loading…</strong>
+                        </div>
+
+                        <div class="stat">
+                            <span>Progress</span>
+                            <strong id="compare-friend-progress">Loading…</strong>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="tracker-card">
                 <h2>Shared progress</h2>
-                <p class="muted" id="compare-shared-status">Loading the latest shared statistics…</p>
+                <p class="muted" id="compare-shared-status">
+                    Loading the latest shared statistics…
+                </p>
             </div>
         `;
 
-        const cloud = window.daydreamersDashboardCloud;
-        if (!cloud) {
-            setText("compare-shared-status", "Shared statistics are currently unavailable.");
+        if (!window.daydreamersDashboardCloud) {
+            setText(
+                "compare-shared-status",
+                "Shared statistics are currently unavailable."
+            );
             return;
         }
 
         try {
-            const members = await cloud.getDashboardMembers();
-            const list = Array.isArray(members) ? members : [];
-            const normalize = value => String(value || "").trim().toLowerCase();
+            const members =
+                await window.daydreamersDashboardCloud
+                    .getDashboardMembers();
 
-            // Load every shared member record first, then match by username/display name.
-            // This avoids relying on a particular ordering or document id.
-            const records = await Promise.all(
-                list.map(async member => {
-                    try {
-                        const data = await cloud.getMemberData(member.id);
-                        return data ? { member, data } : null;
-                    } catch (error) {
-                        console.error("DAYDREAMERS compare member load failed:", member, error);
-                        return null;
-                    }
-                })
-            );
+            const friendMember =
+                Array.isArray(members)
+                    ? members.find(
+                        member =>
+                            member.username === friendName ||
+                            member.displayName === friendName
+                    )
+                    : null;
 
-            const usable = records.filter(Boolean);
-            const findRecord = name => usable.find(item =>
-                normalize(item.member.username) === normalize(name) ||
-                normalize(item.member.displayName) === normalize(name) ||
-                normalize(item.data.username) === normalize(name) ||
-                normalize(item.data.displayName) === normalize(name)
-            );
-
-            const yourRecord = findRecord(yourName);
-            const friendRecord = findRecord(friendName);
-            const totalChapters = getAllChapters().length;
-
-            const getProgress = data => {
-                if (!data) return 0;
-                const explicit = Number(data.overallProgress);
-                if (Number.isFinite(explicit)) {
-                    return Math.max(0, Math.min(100, Math.round(explicit)));
-                }
-                const completed = Number(data.completedChapters || 0);
-                return totalChapters > 0
-                    ? Math.max(0, Math.min(100, Math.round((completed / totalChapters) * 100)))
-                    : 0;
-            };
-
-            const renderCard = (prefix, data) => {
-                const todayHours = Number(data?.todayHours || 0);
-                const completed = Number(data?.completedChapters || 0);
-                const progress = getProgress(data);
-
-                setText(`compare-${prefix}-today`, formatHours(todayHours));
-                setText(`compare-${prefix}-chapters`, completed);
-                setText(`compare-${prefix}-progress`, `${progress}%`);
-            };
-
-            renderCard("your", yourRecord?.data || null);
-            renderCard("friend", friendRecord?.data || null);
-
-            if (!friendRecord) {
+            if (!friendMember) {
+                setText(
+                    "compare-friend-today",
+                    "0h 00m"
+                );
+                setText(
+                    "compare-friend-chapters",
+                    "0"
+                );
+                setText(
+                    "compare-friend-progress",
+                    "0%"
+                );
                 setText(
                     "compare-shared-status",
-                    `${friendName} has not shared study statistics yet.`
+                    `No shared statistics found for ${friendName} yet.`
                 );
-            } else {
-                setText(
-                    "compare-shared-status",
-                    "Live shared statistics • Updated from Firebase"
-                );
+                return;
             }
 
-            console.log("DAYDREAMERS compare records:", {
-                yourName,
-                friendName,
-                members: list,
-                yourRecord,
-                friendRecord
-            });
-        } catch (error) {
-            console.error("DAYDREAMERS compare data failed:", error);
-            setText("compare-your-today", "0h 00m");
-            setText("compare-your-chapters", "0");
-            setText("compare-your-progress", "0%");
-            setText("compare-friend-today", "0h 00m");
-            setText("compare-friend-chapters", "0");
-            setText("compare-friend-progress", "0%");
+            const friendData =
+                await window.daydreamersDashboardCloud
+                    .getMemberData(friendMember.id);
+
+            if (!friendData) {
+                setText(
+                    "compare-friend-today",
+                    "0h 00m"
+                );
+                setText(
+                    "compare-friend-chapters",
+                    "0"
+                );
+                setText(
+                    "compare-friend-progress",
+                    "0%"
+                );
+                setText(
+                    "compare-shared-status",
+                    `${friendName} has not shared any study statistics yet.`
+                );
+                return;
+            }
+
+            const friendTodayHours =
+                Number(friendData.todayHours || 0);
+
+            const friendCompleted =
+                Number(friendData.completedChapters || 0);
+
+            const totalChapters =
+                getAllChapters().length;
+
+            const friendProgress =
+                Number.isFinite(
+                    Number(friendData.overallProgress)
+                )
+                    ? Number(friendData.overallProgress)
+                    : totalChapters > 0
+                        ? Math.round(
+                            (friendCompleted / totalChapters) * 100
+                        )
+                        : 0;
+
+            setText(
+                "compare-friend-today",
+                formatHours(friendTodayHours)
+            );
+
+            setText(
+                "compare-friend-chapters",
+                friendCompleted
+            );
+
+            setText(
+                "compare-friend-progress",
+                `${Math.max(0, Math.min(100, friendProgress))}%`
+            );
+
             setText(
                 "compare-shared-status",
-                "Could not load shared statistics. Refresh and try again."
+                `Live shared statistics • Updated from Firebase`
+            );
+
+        } catch (error) {
+            console.error(
+                "DAYDREAMERS compare data failed:",
+                error
+            );
+
+            setText(
+                "compare-friend-today",
+                "0h 00m"
+            );
+            setText(
+                "compare-friend-chapters",
+                "0"
+            );
+            setText(
+                "compare-friend-progress",
+                "0%"
+            );
+            setText(
+                "compare-shared-status",
+                "Could not load your friend's latest shared statistics. Refresh and try again."
             );
         }
     }
@@ -3698,102 +3788,6 @@ function updateDashboardMemberCard(
        SETTINGS
        --------------------------------------------------------- */
 
-    async function daydreamersLogout() {
-        if (!window.daydreamersAuth) {
-            window.location.href = "login.html";
-            return;
-        }
-
-        const confirmed = window.confirm("Log out of DAYDREAMERS?");
-        if (!confirmed) return;
-
-        try {
-            const { signOut } = await import(
-                "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js"
-            );
-            await signOut(window.daydreamersAuth);
-            window.location.href = "login.html";
-        } catch (error) {
-            console.error("DAYDREAMERS logout failed:", error);
-            alert("Could not log out. Please try again.");
-        }
-    }
-
-    function setupProfileAccountMenu() {
-        const profileButton = document.querySelector(".profile");
-        if (!profileButton || profileButton.dataset.accountMenuReady === "true") return;
-
-        profileButton.dataset.accountMenuReady = "true";
-        profileButton.setAttribute("role", "button");
-        profileButton.setAttribute("tabindex", "0");
-        profileButton.setAttribute("aria-label", "Account menu");
-        profileButton.style.cursor = "pointer";
-        profileButton.style.position = "relative";
-
-        const menu = document.createElement("div");
-        menu.id = "daydreamers-account-menu";
-        menu.style.cssText = `
-            position:absolute; right:0; top:calc(100% + 10px); width:230px;
-            padding:14px; background:var(--card-bg,#fff); color:inherit;
-            border:1px solid rgba(100,100,140,.16); border-radius:16px;
-            box-shadow:0 14px 35px rgba(30,30,70,.16); z-index:9999; display:none;
-        `;
-        profileButton.appendChild(menu);
-
-        const closeMenu = () => { menu.style.display = "none"; };
-
-        const renderMenu = () => {
-            const profile = window.daydreamersProfile || {};
-            const user = window.daydreamersAuth?.currentUser;
-            const name = profile.displayName || profile.username || "Guest";
-            const email = profile.email || user?.email || "";
-            const loggedIn = Boolean(user);
-
-            menu.innerHTML = `
-                <div style="font-weight:800;font-size:16px;margin-bottom:3px;">${escapeHTML(name)}</div>
-                <div style="font-size:12px;opacity:.65;margin-bottom:12px;word-break:break-word;">${escapeHTML(email || (loggedIn ? "Signed in" : "Guest mode"))}</div>
-                <button type="button" id="account-settings-action" style="width:100%;padding:10px 12px;border:0;border-radius:10px;background:rgba(99,102,241,.10);cursor:pointer;font-weight:700;margin-bottom:7px;">⚙️ Settings</button>
-                <button type="button" id="account-auth-action" style="width:100%;padding:10px 12px;border:0;border-radius:10px;background:rgba(99,102,241,.10);cursor:pointer;font-weight:700;">${loggedIn ? "🚪 Log out" : "🔐 Log in"}</button>
-            `;
-
-            menu.querySelector("#account-settings-action").addEventListener("click", (event) => {
-                event.stopPropagation();
-                closeMenu();
-                showPage("settings");
-            });
-
-            menu.querySelector("#account-auth-action").addEventListener("click", async (event) => {
-                event.stopPropagation();
-                if (loggedIn) {
-                    await daydreamersLogout();
-                } else {
-                    window.location.href = "login.html";
-                }
-            });
-        };
-
-        const toggleMenu = (event) => {
-            event.stopPropagation();
-            const opening = menu.style.display !== "block";
-            if (opening) {
-                renderMenu();
-                menu.style.display = "block";
-            } else {
-                closeMenu();
-            }
-        };
-
-        profileButton.addEventListener("click", toggleMenu);
-        profileButton.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                toggleMenu(event);
-            }
-        });
-        document.addEventListener("click", closeMenu);
-    }
-
-
     function renderSettings() {
         const page =
             $("settings");
@@ -3802,28 +3796,27 @@ function updateDashboardMemberCard(
             return;
         }
 
-        const profile = window.daydreamersProfile || {};
-        const loggedIn = Boolean(window.daydreamersAuth?.currentUser);
-        const displayName = profile.displayName || profile.username || "Guest";
-        const email = profile.email || window.daydreamersAuth?.currentUser?.email || "";
-
         page.innerHTML = `
             <div class="page-header">
+
                 <div>
-                    <p class="small-label">DAYDREAMERS</p>
-                    <h1>Settings</h1>
-                    <p class="muted">Manage your account, study preferences and local data.</p>
+
+                    <p class="small-label">
+                        DAYDREAMERS
+                    </p>
+
+                    <h1>
+                        Settings
+                    </h1>
+
+                    <p class="muted">
+                        Local website settings and data.
+                    </p>
+
                 </div>
+
             </div>
 
-            <div class="tracker-card" style="margin-bottom:20px;">
-                <p class="small-label">ACCOUNT</p>
-                <h2>${escapeHTML(displayName)}</h2>
-                <p class="muted" style="margin:6px 0 16px;">${loggedIn ? escapeHTML(email || "Signed in to DAYDREAMERS") : "You are currently browsing as a guest."}</p>
-                <button id="settings-auth-button" class="save-button" type="button">
-                    ${loggedIn ? "🚪 Log out" : "🔐 Log in"}
-                </button>
-            </div>
 
             <div class="tracker-card">
 
@@ -3869,17 +3862,6 @@ function updateDashboardMemberCard(
 
             </div>
         `;
-
-        const authButton = $("settings-auth-button");
-        if (authButton) {
-            authButton.addEventListener("click", () => {
-                if (loggedIn) {
-                    daydreamersLogout();
-                } else {
-                    window.location.href = "login.html";
-                }
-            });
-        }
 
         const exportButton =
             $("export-data-button");
@@ -4167,88 +4149,8 @@ function updateDashboardMemberCard(
         return formatShortDate(dateKey);
     }
 
-    let firebaseTasksModulePromise = null;
-
-    async function getFirebaseTasksModule() {
-        if (!firebaseTasksModulePromise) {
-            firebaseTasksModulePromise = import(
-                "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"
-            );
-        }
-        return firebaseTasksModulePromise;
-    }
-
-    async function loadTasksFromCloud() {
-        if (!window.daydreamersDb || !window.daydreamersProfile?.uid) {
-            return false;
-        }
-
-        try {
-            const { doc, getDoc } = await getFirebaseTasksModule();
-            const snapshot = await getDoc(
-                doc(window.daydreamersDb, "users", window.daydreamersProfile.uid)
-            );
-
-            if (snapshot.exists()) {
-                const data = snapshot.data() || {};
-                if (Array.isArray(data.tasks)) {
-                    tasks = data.tasks;
-                    localStorage.setItem(
-                        STORAGE_KEYS.tasks,
-                        JSON.stringify(tasks)
-                    );
-                    return true;
-                }
-            }
-
-            // First cloud load: preserve any existing local tasks.
-            if (tasks.length) {
-                await saveTasksOnly();
-            }
-            return false;
-        } catch (error) {
-            console.error(
-                "DAYDREAMERS Firebase task load failed:",
-                error
-            );
-            return false;
-        }
-    }
-
-    async function saveTasksOnly() {
-        localStorage.setItem(
-            STORAGE_KEYS.tasks,
-            JSON.stringify(tasks)
-        );
-
-        if (!window.daydreamersDb || !window.daydreamersProfile?.uid) {
-            return;
-        }
-
-        try {
-            const { doc, setDoc, serverTimestamp } =
-                await getFirebaseTasksModule();
-
-            await setDoc(
-                doc(
-                    window.daydreamersDb,
-                    "users",
-                    window.daydreamersProfile.uid
-                ),
-                {
-                    tasks,
-                    tasksUpdatedAt: serverTimestamp()
-                },
-                { merge: true }
-            );
-
-            console.log("DAYDREAMERS tasks saved to Firebase.");
-        } catch (error) {
-            console.error(
-                "DAYDREAMERS Firebase task save failed:",
-                error
-            );
-        }
+    function saveTasksOnly() {
+        localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
     }
 
     function createTaskFromForm() {
@@ -4369,7 +4271,10 @@ function updateDashboardMemberCard(
             const taskNav = nav.cloneNode(true);
             taskNav.dataset.page = "tasks";
             taskNav.classList.remove("active");
-            taskNav.innerHTML = `<span style="display:inline-flex;width:24px;justify-content:center;align-items:center;font-size:18px;">☑️</span><span>Tasks</span>`;
+            const label = taskNav.querySelector("span:last-child");
+            if (label) label.textContent = "Tasks";
+            const icon = taskNav.querySelector(".nav-icon");
+            if (icon) icon.textContent = "✓";
             nav.parentElement.insertBefore(taskNav, nav.nextSibling);
         }
 
@@ -4416,6 +4321,278 @@ function updateDashboardMemberCard(
         renderTasks();
     }
 
+
+    /* =========================================================
+       SHARED TASKS — Firebase
+       ========================================================= */
+
+    let sharedTasks = [];
+    let sharedTasksModulePromise = null;
+
+    function loadSharedTasksModule() {
+        if (!sharedTasksModulePromise) {
+            sharedTasksModulePromise = import(
+                "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js"
+            );
+        }
+        return sharedTasksModulePromise;
+    }
+
+    async function loadSharedTasks() {
+        const uid = window.daydreamersProfile?.uid;
+        if (!uid || !window.daydreamersDb) {
+            sharedTasks = [];
+            renderSharedTasks();
+            return;
+        }
+
+        try {
+            const {
+                collection, query, where, getDocs
+            } = await loadSharedTasksModule();
+
+            const db = window.daydreamersDb;
+            const ref = collection(db, "sharedTasks");
+
+            const [ownedSnap, assignedSnap] = await Promise.all([
+                getDocs(query(ref, where("ownerUid", "==", uid))),
+                getDocs(query(ref, where("assigneeUid", "==", uid)))
+            ]);
+
+            const map = new Map();
+            [...ownedSnap.docs, ...assignedSnap.docs].forEach(docSnap => {
+                map.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+            });
+
+            sharedTasks = Array.from(map.values());
+            sharedTasks.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                return `${a.date || "9999-99-99"}T${a.time || "23:59"}`
+                    .localeCompare(`${b.date || "9999-99-99"}T${b.time || "23:59"}`);
+            });
+
+            renderSharedTasks();
+        } catch (error) {
+            console.error("DAYDREAMERS shared tasks load failed:", error);
+            sharedTasks = [];
+            renderSharedTasks("Could not load shared tasks. Check Firebase rules.");
+        }
+    }
+
+    async function getSharedTaskMembers() {
+        if (window.daydreamersDashboardCloud?.getDashboardMembers) {
+            try {
+                const members = await window.daydreamersDashboardCloud.getDashboardMembers();
+                return Array.isArray(members) ? members : [];
+            } catch (error) {
+                console.error("DAYDREAMERS member list load failed:", error);
+            }
+        }
+        return [];
+    }
+
+    async function populateSharedTaskMembers() {
+        const select = $("shared-task-assignee");
+        if (!select) return;
+
+        const currentUid = window.daydreamersProfile?.uid || "";
+        const members = await getSharedTaskMembers();
+        const unique = new Map();
+
+        members.forEach(member => {
+            const id = member.id || member.uid;
+            if (id && id !== currentUid) unique.set(id, member);
+        });
+
+        select.innerHTML = unique.size
+            ? `<option value="">Select friend</option>` + Array.from(unique.values()).map(member => {
+                const name = member.displayName || member.username || "Member";
+                return `<option value="${escapeHTML(member.id || member.uid)}">${escapeHTML(name)}</option>`;
+            }).join("")
+            : `<option value="">No other member available</option>`;
+    }
+
+    async function createSharedTaskFromForm() {
+        const title = $("shared-task-title")?.value.trim();
+        const assigneeUid = $("shared-task-assignee")?.value;
+        if (!title || !assigneeUid) {
+            alert("Enter a task and select your friend.");
+            return;
+        }
+
+        const uid = window.daydreamersProfile?.uid;
+        if (!uid || !window.daydreamersDb) {
+            alert("Please log in first.");
+            return;
+        }
+
+        try {
+            const { collection, addDoc, serverTimestamp } = await loadSharedTasksModule();
+            const members = await getSharedTaskMembers();
+            const assignee = members.find(m => (m.id || m.uid) === assigneeUid) || {};
+            const creatorName = window.daydreamersProfile.displayName || window.daydreamersProfile.username || "Member";
+
+            await addDoc(collection(window.daydreamersDb, "sharedTasks"), {
+                ownerUid: uid,
+                assigneeUid,
+                ownerName: creatorName,
+                assigneeName: assignee.displayName || assignee.username || "Friend",
+                title,
+                subject: $("shared-task-subject")?.value || "",
+                date: $("shared-task-date")?.value || getTaskTodayKey(),
+                time: $("shared-task-time")?.value || "",
+                priority: $("shared-task-priority")?.value || "medium",
+                notes: $("shared-task-notes")?.value.trim() || "",
+                completed: false,
+                completedAt: null,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+
+            $("shared-task-form")?.reset();
+            $("shared-task-date").value = getTaskTodayKey();
+            await loadSharedTasks();
+        } catch (error) {
+            console.error("DAYDREAMERS shared task create failed:", error);
+            alert("Could not create the shared task. Please check Firebase rules.");
+        }
+    }
+
+    async function toggleSharedTask(taskId, completed) {
+        const task = sharedTasks.find(item => item.id === taskId);
+        if (!task) return;
+        const uid = window.daydreamersProfile?.uid;
+        if (!uid) return;
+
+        try {
+            const { doc, updateDoc, serverTimestamp } = await loadSharedTasksModule();
+            await updateDoc(doc(window.daydreamersDb, "sharedTasks", taskId), {
+                completed: !!completed,
+                completedAt: completed ? serverTimestamp() : null,
+                updatedAt: serverTimestamp()
+            });
+            await loadSharedTasks();
+        } catch (error) {
+            console.error("DAYDREAMERS shared task update failed:", error);
+            alert("Could not update this shared task.");
+        }
+    }
+
+    async function deleteSharedTask(taskId) {
+        const task = sharedTasks.find(item => item.id === taskId);
+        if (!task || task.ownerUid !== window.daydreamersProfile?.uid) return;
+        if (!confirm(`Delete "${task.title}"?`)) return;
+
+        try {
+            const { doc, deleteDoc } = await loadSharedTasksModule();
+            await deleteDoc(doc(window.daydreamersDb, "sharedTasks", taskId));
+            await loadSharedTasks();
+        } catch (error) {
+            console.error("DAYDREAMERS shared task delete failed:", error);
+            alert("Could not delete this shared task.");
+        }
+    }
+
+    function renderSharedTasks(errorMessage = "") {
+        const list = $("shared-tasks-list");
+        if (!list) return;
+
+        const uid = window.daydreamersProfile?.uid;
+        setText("shared-tasks-active-count", sharedTasks.filter(t => !t.completed).length);
+        setText("shared-tasks-done-count", sharedTasks.filter(t => t.completed).length);
+        setText("shared-tasks-total-count", sharedTasks.length);
+
+        if (errorMessage) {
+            list.innerHTML = `<div class="tracker-empty-state"><div>⚠️</div><p>${escapeHTML(errorMessage)}</p></div>`;
+            return;
+        }
+
+        if (!sharedTasks.length) {
+            list.innerHTML = `<div class="tracker-empty-state"><div>🤝</div><p>No shared tasks yet.</p><span>Create a task for your friend above.</span></div>`;
+            return;
+        }
+
+        list.innerHTML = sharedTasks.map(task => {
+            const mine = task.ownerUid === uid;
+            const person = mine ? `For ${task.assigneeName || "friend"}` : `From ${task.ownerName || "friend"}`;
+            const priority = task.priority === "high" ? "High" : task.priority === "low" ? "Low" : "Medium";
+            return `<div class="tracker-card" style="margin-bottom:12px;opacity:${task.completed ? ".68" : "1"};">
+                <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
+                    <div style="display:flex;gap:12px;align-items:flex-start;min-width:0;">
+                        <input type="checkbox" data-shared-complete="${escapeHTML(task.id)}" ${task.completed ? "checked" : ""} style="margin-top:5px;width:18px;height:18px;">
+                        <div style="min-width:0;">
+                            <strong style="font-size:16px;${task.completed ? "text-decoration:line-through;" : ""}">${escapeHTML(task.title)}</strong>
+                            <div class="muted" style="margin-top:5px;">${escapeHTML(person)} • ${escapeHTML(getTaskDateLabel(task.date))}${task.time ? ` • ${escapeHTML(task.time)}` : ""}</div>
+                            ${task.subject ? `<div class="muted" style="margin-top:4px;">${escapeHTML(getSubjectDisplayName(task.subject))} • ${priority}</div>` : `<div class="muted" style="margin-top:4px;">${priority}</div>`}
+                            ${task.notes ? `<div class="muted" style="margin-top:6px;">${escapeHTML(task.notes)}</div>` : ""}
+                        </div>
+                    </div>
+                    ${mine ? `<button type="button" data-shared-delete="${escapeHTML(task.id)}">Delete</button>` : ""}
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    function setupSharedTasks() {
+        if ($("shared-tasks")) return;
+
+        const nav = document.querySelector(".nav-item[data-page='tasks']") || document.querySelector(".nav-item[data-page='activities']");
+        if (nav) {
+            const sharedNav = nav.cloneNode(true);
+            sharedNav.dataset.page = "shared-tasks";
+            sharedNav.classList.remove("active");
+            sharedNav.textContent = "🤝 Shared Tasks";
+            nav.parentElement.insertBefore(sharedNav, nav.nextSibling);
+        }
+
+        const host = document.querySelector(".page-section")?.parentElement;
+        if (!host) return;
+        const page = document.createElement("section");
+        page.id = "shared-tasks";
+        page.className = "page-section";
+        page.style.display = "none";
+        page.innerHTML = `<div class="page-header"><div><p class="small-label">DAYDREAMERS</p><h1>Shared Tasks 🤝</h1><p class="muted">Create tasks for each other and keep both sides of the CA journey moving.</p></div></div>
+            <div class="statistics-three-column" style="margin-bottom:18px;">
+                <div class="tracker-card"><span class="small-label">ACTIVE</span><h2 id="shared-tasks-active-count">0</h2></div>
+                <div class="tracker-card"><span class="small-label">COMPLETED</span><h2 id="shared-tasks-done-count">0</h2></div>
+                <div class="tracker-card"><span class="small-label">TOTAL</span><h2 id="shared-tasks-total-count">0</h2></div>
+            </div>
+            <div class="tracker-card" style="margin-bottom:18px;"><h2>Create shared task</h2>
+                <form id="shared-task-form" style="display:grid;gap:12px;margin-top:12px;">
+                    <input id="shared-task-title" type="text" placeholder="Task for your friend" required>
+                    <div class="form-grid-two">
+                        <select id="shared-task-assignee"><option value="">Loading members...</option></select>
+                        <input id="shared-task-date" type="date" value="${getTaskTodayKey()}">
+                        <input id="shared-task-time" type="time">
+                        <select id="shared-task-subject"><option value="">No subject</option><option value="Accounts">Advanced Accounting</option><option value="Law">Corporate & Other Laws</option><option value="Taxation">Taxation</option><option value="Costing">Cost & Management Accounting</option><option value="Audit">Auditing & Ethics</option><option value="FM & SM">Financial & Strategic Management</option></select>
+                        <select id="shared-task-priority"><option value="high">High priority</option><option value="medium" selected>Medium priority</option><option value="low">Low priority</option></select>
+                    </div>
+                    <textarea id="shared-task-notes" rows="2" placeholder="Notes (optional)"></textarea>
+                    <button type="submit">+ Create Shared Task</button>
+                </form>
+            </div>
+            <div class="tracker-card"><h2>Our shared tasks</h2><div id="shared-tasks-list" style="margin-top:16px;"></div></div>`;
+        host.appendChild(page);
+
+        document.querySelector(".nav-item[data-page='shared-tasks']")?.addEventListener("click", async event => {
+            event.preventDefault();
+            showPage("shared-tasks");
+            await loadSharedTasks();
+        });
+        $("shared-task-form").addEventListener("submit", event => { event.preventDefault(); createSharedTaskFromForm(); });
+        $("shared-tasks-list").addEventListener("change", event => {
+            const checkbox = event.target.closest("[data-shared-complete]");
+            if (checkbox) toggleSharedTask(checkbox.dataset.sharedComplete, checkbox.checked);
+        });
+        $("shared-tasks-list").addEventListener("click", event => {
+            const del = event.target.closest("[data-shared-delete]");
+            if (del) deleteSharedTask(del.dataset.sharedDelete);
+        });
+
+        populateSharedTaskMembers();
+        loadSharedTasks();
+    }
+
     function initializeDaydreamers() {
 
         setupThemeSystem();
@@ -4423,6 +4600,7 @@ function updateDashboardMemberCard(
         updateDateAndGreeting();
 
         setupTasks();
+        setupSharedTasks();
         setupNavigation();
 
         setupStudyModal();
@@ -5729,9 +5907,8 @@ async function initializeDaydreamers() {
     }
 
     updateDateAndGreeting();
-    await loadTasksFromCloud();
     setupTasks();
-    setupProfileAccountMenu();
+    setupSharedTasks();
     setupNavigation();
     setupStudyModal();
     setupChapterFilters();
