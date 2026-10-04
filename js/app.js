@@ -3311,18 +3311,14 @@ function updateDashboardMemberCard(
     async function renderCompare() {
         const page = $("compare");
 
-        if (!page) {
-            return;
-        }
+        if (!page) return;
 
         const profile = window.daydreamersProfile || {};
-        const currentUsername =
-            profile.username ||
-            profile.displayName ||
-            "ashjii";
+        const currentUsername = String(
+            profile.username || profile.displayName || "ashjii"
+        ).toLowerCase();
 
         const isPothu = currentUsername === "pothujii";
-
         const yourName = isPothu ? "pothujii" : "ashjii";
         const friendName = isPothu ? "ashjii" : "pothujii";
 
@@ -3334,237 +3330,151 @@ function updateDashboardMemberCard(
             ? "assets/ashjii-profile.jpg"
             : "assets/pothujii-profile.jpg";
 
-        const yourTodayHours =
-            getStudyHoursForDate(getTodayKey());
-
-        const yourCompleted =
-            getCompletedChapterCount();
-
-        const yourProgress =
-            getOverallChapterProgress();
-
         page.innerHTML = `
             <div class="page-header">
                 <div>
                     <p class="small-label">TWO FRIENDS</p>
                     <h1>Compare Us</h1>
                     <p class="muted">
-                        A live shared comparison for ${escapeHTML(yourName)} and ${escapeHTML(friendName)}.
+                        Live shared comparison for ${escapeHTML(yourName)} and ${escapeHTML(friendName)}.
                     </p>
                 </div>
             </div>
 
             <div class="user-cards">
-
                 <div class="user-card ${isPothu ? "pothujii-card" : "ashjii-card"}">
                     <div class="user-card-header">
                         <div class="avatar">
-                            <img
-                                src="${yourPhoto}"
-                                alt="${escapeHTML(yourName)} profile photo"
-                            >
+                            <img src="${yourPhoto}" alt="${escapeHTML(yourName)} profile photo">
                         </div>
-
                         <div>
                             <p class="small-label">YOUR JOURNEY</p>
                             <h2>${escapeHTML(yourName)}</h2>
                         </div>
                     </div>
-
                     <div class="stats-grid">
-                        <div class="stat">
-                            <span>Today</span>
-                            <strong id="compare-your-today">
-                                ${escapeHTML(formatHours(yourTodayHours))}
-                            </strong>
-                        </div>
-
-                        <div class="stat">
-                            <span>Chapters</span>
-                            <strong id="compare-your-chapters">
-                                ${yourCompleted}
-                            </strong>
-                        </div>
-
-                        <div class="stat">
-                            <span>Progress</span>
-                            <strong id="compare-your-progress">
-                                ${yourProgress}%
-                            </strong>
-                        </div>
+                        <div class="stat"><span>Today</span><strong id="compare-your-today">Loading…</strong></div>
+                        <div class="stat"><span>Chapters</span><strong id="compare-your-chapters">Loading…</strong></div>
+                        <div class="stat"><span>Progress</span><strong id="compare-your-progress">Loading…</strong></div>
                     </div>
                 </div>
 
                 <div class="user-card ${isPothu ? "ashjii-card" : "pothujii-card"}">
                     <div class="user-card-header">
                         <div class="avatar">
-                            <img
-                                src="${friendPhoto}"
-                                alt="${escapeHTML(friendName)} profile photo"
-                            >
+                            <img src="${friendPhoto}" alt="${escapeHTML(friendName)} profile photo">
                         </div>
-
                         <div>
                             <p class="small-label">FRIEND'S JOURNEY</p>
                             <h2>${escapeHTML(friendName)}</h2>
                         </div>
                     </div>
-
                     <div class="stats-grid">
-                        <div class="stat">
-                            <span>Today</span>
-                            <strong id="compare-friend-today">Loading…</strong>
-                        </div>
-
-                        <div class="stat">
-                            <span>Chapters</span>
-                            <strong id="compare-friend-chapters">Loading…</strong>
-                        </div>
-
-                        <div class="stat">
-                            <span>Progress</span>
-                            <strong id="compare-friend-progress">Loading…</strong>
-                        </div>
+                        <div class="stat"><span>Today</span><strong id="compare-friend-today">Loading…</strong></div>
+                        <div class="stat"><span>Chapters</span><strong id="compare-friend-chapters">Loading…</strong></div>
+                        <div class="stat"><span>Progress</span><strong id="compare-friend-progress">Loading…</strong></div>
                     </div>
                 </div>
-
             </div>
 
             <div class="tracker-card">
                 <h2>Shared progress</h2>
-                <p class="muted" id="compare-shared-status">
-                    Loading the latest shared statistics…
-                </p>
+                <p class="muted" id="compare-shared-status">Loading the latest shared statistics…</p>
             </div>
         `;
 
-        if (!window.daydreamersDashboardCloud) {
-            setText(
-                "compare-shared-status",
-                "Shared statistics are currently unavailable."
-            );
+        const cloud = window.daydreamersDashboardCloud;
+        if (!cloud) {
+            setText("compare-shared-status", "Shared statistics are currently unavailable.");
             return;
         }
 
         try {
-            const members =
-                await window.daydreamersDashboardCloud
-                    .getDashboardMembers();
+            const members = await cloud.getDashboardMembers();
+            const list = Array.isArray(members) ? members : [];
+            const normalize = value => String(value || "").trim().toLowerCase();
 
-            const friendMember =
-                Array.isArray(members)
-                    ? members.find(
-                        member =>
-                            member.username === friendName ||
-                            member.displayName === friendName
-                    )
-                    : null;
+            // Load every shared member record first, then match by username/display name.
+            // This avoids relying on a particular ordering or document id.
+            const records = await Promise.all(
+                list.map(async member => {
+                    try {
+                        const data = await cloud.getMemberData(member.id);
+                        return data ? { member, data } : null;
+                    } catch (error) {
+                        console.error("DAYDREAMERS compare member load failed:", member, error);
+                        return null;
+                    }
+                })
+            );
 
-            if (!friendMember) {
-                setText(
-                    "compare-friend-today",
-                    "0h 00m"
-                );
-                setText(
-                    "compare-friend-chapters",
-                    "0"
-                );
-                setText(
-                    "compare-friend-progress",
-                    "0%"
-                );
+            const usable = records.filter(Boolean);
+            const findRecord = name => usable.find(item =>
+                normalize(item.member.username) === normalize(name) ||
+                normalize(item.member.displayName) === normalize(name) ||
+                normalize(item.data.username) === normalize(name) ||
+                normalize(item.data.displayName) === normalize(name)
+            );
+
+            const yourRecord = findRecord(yourName);
+            const friendRecord = findRecord(friendName);
+            const totalChapters = getAllChapters().length;
+
+            const getProgress = data => {
+                if (!data) return 0;
+                const explicit = Number(data.overallProgress);
+                if (Number.isFinite(explicit)) {
+                    return Math.max(0, Math.min(100, Math.round(explicit)));
+                }
+                const completed = Number(data.completedChapters || 0);
+                return totalChapters > 0
+                    ? Math.max(0, Math.min(100, Math.round((completed / totalChapters) * 100)))
+                    : 0;
+            };
+
+            const renderCard = (prefix, data) => {
+                const todayHours = Number(data?.todayHours || 0);
+                const completed = Number(data?.completedChapters || 0);
+                const progress = getProgress(data);
+
+                setText(`compare-${prefix}-today`, formatHours(todayHours));
+                setText(`compare-${prefix}-chapters`, completed);
+                setText(`compare-${prefix}-progress`, `${progress}%`);
+            };
+
+            renderCard("your", yourRecord?.data || null);
+            renderCard("friend", friendRecord?.data || null);
+
+            if (!friendRecord) {
                 setText(
                     "compare-shared-status",
-                    `No shared statistics found for ${friendName} yet.`
+                    `${friendName} has not shared study statistics yet.`
                 );
-                return;
-            }
-
-            const friendData =
-                await window.daydreamersDashboardCloud
-                    .getMemberData(friendMember.id);
-
-            if (!friendData) {
-                setText(
-                    "compare-friend-today",
-                    "0h 00m"
-                );
-                setText(
-                    "compare-friend-chapters",
-                    "0"
-                );
-                setText(
-                    "compare-friend-progress",
-                    "0%"
-                );
+            } else {
                 setText(
                     "compare-shared-status",
-                    `${friendName} has not shared any study statistics yet.`
+                    "Live shared statistics • Updated from Firebase"
                 );
-                return;
             }
 
-            const friendTodayHours =
-                Number(friendData.todayHours || 0);
-
-            const friendCompleted =
-                Number(friendData.completedChapters || 0);
-
-            const totalChapters =
-                getAllChapters().length;
-
-            const friendProgress =
-                Number.isFinite(
-                    Number(friendData.overallProgress)
-                )
-                    ? Number(friendData.overallProgress)
-                    : totalChapters > 0
-                        ? Math.round(
-                            (friendCompleted / totalChapters) * 100
-                        )
-                        : 0;
-
-            setText(
-                "compare-friend-today",
-                formatHours(friendTodayHours)
-            );
-
-            setText(
-                "compare-friend-chapters",
-                friendCompleted
-            );
-
-            setText(
-                "compare-friend-progress",
-                `${Math.max(0, Math.min(100, friendProgress))}%`
-            );
-
-            setText(
-                "compare-shared-status",
-                `Live shared statistics • Updated from Firebase`
-            );
-
+            console.log("DAYDREAMERS compare records:", {
+                yourName,
+                friendName,
+                members: list,
+                yourRecord,
+                friendRecord
+            });
         } catch (error) {
-            console.error(
-                "DAYDREAMERS compare data failed:",
-                error
-            );
-
-            setText(
-                "compare-friend-today",
-                "0h 00m"
-            );
-            setText(
-                "compare-friend-chapters",
-                "0"
-            );
-            setText(
-                "compare-friend-progress",
-                "0%"
-            );
+            console.error("DAYDREAMERS compare data failed:", error);
+            setText("compare-your-today", "0h 00m");
+            setText("compare-your-chapters", "0");
+            setText("compare-your-progress", "0%");
+            setText("compare-friend-today", "0h 00m");
+            setText("compare-friend-chapters", "0");
+            setText("compare-friend-progress", "0%");
             setText(
                 "compare-shared-status",
-                "Could not load your friend's latest shared statistics. Refresh and try again."
+                "Could not load shared statistics. Refresh and try again."
             );
         }
     }
