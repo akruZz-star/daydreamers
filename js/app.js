@@ -1026,6 +1026,78 @@ if (greetingElement) {
         }
     }
 }
+   async function renderDashboardMemberCards(members, today) {
+    if (!Array.isArray(members)) return;
+
+    const ashMember = members.find(
+        member =>
+            member.username === "ashjii" ||
+            member.displayName === "ashjii"
+    );
+
+    const pothuMember = members.find(
+        member =>
+            member.username === "pothujii" ||
+            member.displayName === "pothujii"
+    );
+
+    if (ashMember) {
+        const ashData =
+            await window.daydreamersDashboardCloud
+                .getMemberData(ashMember.id);
+
+        updateDashboardMemberCard(
+            "ash",
+            ashData,
+            today
+        );
+    }
+
+    if (pothuMember) {
+        const pothuData =
+            await window.daydreamersDashboardCloud
+                .getMemberData(pothuMember.id);
+
+        updateDashboardMemberCard(
+            "pothu",
+            pothuData,
+            today
+        );
+    }
+}
+
+
+function updateDashboardMemberCard(
+    prefix,
+    memberData,
+    today
+) {
+    if (!memberData) return;
+
+    const todayHours =
+        Number(memberData.todayHours || 0);
+
+    const completed =
+        Number(memberData.completedChapters || 0);
+
+    const streak =
+        Number(memberData.streak || 0);
+
+    setText(
+        `dashboard-${prefix}-study`,
+        formatHours(todayHours)
+    );
+
+    setText(
+        `dashboard-${prefix}-chapters`,
+        completed
+    );
+
+    setText(
+        `dashboard-${prefix}-streak`,
+        `${streak} days 🔥`
+    );
+}
     function renderDashboardRecentActivities() {
         const container = $("dashboard-recent-activities");
         if (!container) return;
