@@ -241,4 +241,7 @@ window.daydreamersStudyCloud = {
     console.log(
         "DAYDREAMERS private data + shared stats saved."
     );
-}
+    }
+};
+
+console.log("DAYDREAMERS Firebase study module loaded.");
