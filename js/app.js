@@ -4454,7 +4454,12 @@ function updateDashboardMemberCard(
             const taskNav = nav.cloneNode(true);
             taskNav.dataset.page = "tasks";
             taskNav.classList.remove("active");
-            taskNav.innerHTML = `<span class="nav-icon">✓</span><span>Tasks</span>`;
+            taskNav.innerHTML = `
+               <span class="nav-icon" style="display:flex!important;align-items:center;justify-content:center;font-size:24px!important;width:40px;height:40px;">
+                  ☑
+              </span>
+              <span>Tasks</span>
+        `;
             nav.parentElement.insertBefore(taskNav, nav.nextSibling);
         }
 
@@ -4819,7 +4824,12 @@ function updateDashboardMemberCard(
             const sharedNav = nav.cloneNode(true);
             sharedNav.dataset.page = "shared-tasks";
             sharedNav.classList.remove("active");
-            sharedNav.innerHTML = `<span class="nav-icon">🤝</span><span>Shared Tasks</span>`;
+            sharedNav.innerHTML = `
+                <span class="nav-icon" style="display:flex!important;align-items:center;justify-content:center;font-size:23px!important;width:40px;height:40px;">
+                    🤝
+               </span>
+              <span>Shared Tasks</span>
+        `;
             nav.parentElement.insertBefore(sharedNav, nav.nextSibling);
         }
 
