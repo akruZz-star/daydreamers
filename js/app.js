@@ -4302,7 +4302,7 @@ function updateDashboardMemberCard(
             const taskNav = nav.cloneNode(true);
             taskNav.dataset.page = "tasks";
             taskNav.classList.remove("active");
-            taskNav.innerHTML = `<span class="nav-icon">✓</span><span>Tasks</span>`;
+            taskNav.textContent = "☑️ Tasks";
             nav.parentElement.insertBefore(taskNav, nav.nextSibling);
         }
 
@@ -4667,7 +4667,7 @@ function updateDashboardMemberCard(
             const sharedNav = nav.cloneNode(true);
             sharedNav.dataset.page = "shared-tasks";
             sharedNav.classList.remove("active");
-            sharedNav.innerHTML = `<span class="nav-icon">🤝</span><span>Shared Tasks</span>`;
+            sharedNav.textContent = "🤝 Shared Tasks";
             nav.parentElement.insertBefore(sharedNav, nav.nextSibling);
         }
 
